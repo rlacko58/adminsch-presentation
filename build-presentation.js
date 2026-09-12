@@ -326,6 +326,8 @@ const page = `<!doctype html>
   #bottom-rail.show{ opacity:1; pointer-events:auto; }
   #rail-svg{ width:100%; height:100%; display:block; }
   .rail-dot{ fill:#ffffff; stroke:#000; stroke-width:1; cursor:pointer; opacity:.9; }
+  .rail-gridline{ stroke:var(--text-muted); stroke-width:1; opacity:.2; }
+  .rail-year-label{ font-size:9px; fill:var(--text-muted); font-family:inherit; opacity:.7; }
   .rail-dot:hover{ opacity:1; r:7; }
   .rail-marker{ fill:var(--text-primary); opacity:0; transition:opacity .2s ease; filter:drop-shadow(0 0 3px rgba(255,255,255,.6)); }
 
@@ -496,9 +498,23 @@ ${slidesHtml}
     const w = el.parentElement.clientWidth, h = el.parentElement.clientHeight;
     const svg = svgEl('svg', {viewBox:\`0 0 \${w} \${h}\`, width:'100%', height:'100%'});
 
-    const dotY = 14, barBase = h - 30, barMaxH = barBase - dotY - 4;
+    // extra 14px strip carved out below the bars, above the hud/navhint text
+    // row, just for the year gridlines + tiny year numbers — keeping it out
+    // of the same horizontal band as that text avoids any overlap with it
+    const dotY = 14, barBase = h - 44, barMaxH = barBase - dotY - 4, yearLabelY = h - 30;
     const maxMonth = Math.max(...MONTHLY.map(d=>d[1]));
     const barW = Math.max(1.5, (w / MONTHLY.length) * 0.6);
+
+    for(let y=2013; y<=2026; y++){
+      const x = railX(y, w);
+      svg.appendChild(svgEl('line', {x1:x, x2:x, y1:dotY+10, y2:barBase, class:'rail-gridline'}));
+      // the 2013 line sits exactly at x=0 — center-anchoring its label would
+      // clip half of it off the left edge of the svg, so anchor from start
+      const anchor = x < 12 ? 'start' : (x > w-12 ? 'end' : 'middle');
+      const lbl = svgEl('text', {x, y:yearLabelY, class:'rail-year-label', 'text-anchor':anchor});
+      lbl.textContent = "'" + String(y).slice(2);
+      svg.appendChild(lbl);
+    }
 
     MONTHLY.forEach(([ym, total, dist, other])=>{
       const x = railX(ymToDec(ym), w);
