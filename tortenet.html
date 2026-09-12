@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdminSCH története — sztori</title>
+<style>
+  :root{
+    --page:#f9f9f7; --surface-1:#fcfcfb; --text-primary:#0b0b0b; --text-secondary:#52514e;
+    --text-muted:#898781; --gridline:#e1e0d9; --border:rgba(11,11,11,0.10); --accent:#2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page:#0d0d0d; --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7;
+      --text-muted:#898781; --gridline:#2c2c2a; --border:rgba(255,255,255,0.10); --accent:#3987e5;
+    }
+  }
+  *{ box-sizing:border-box; }
+  body{
+    background:var(--page); color:var(--text-primary);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; line-height:1.65;
+    max-width:740px; margin:0 auto; padding:48px 24px 100px;
+  }
+  h1{ font-size:clamp(28px,5vw,40px); letter-spacing:-0.01em; }
+  h2,h3{ letter-spacing:-0.01em; margin-top:2.2em; }
+  a{ color:var(--accent); }
+  table{ width:100%; border-collapse:collapse; margin:24px 0; font-size:15px; }
+  th,td{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--gridline); }
+  th{ color:var(--text-muted); font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:.03em; }
+  td:last-child, th:last-child{ text-align:right; font-variant-numeric:tabular-nums; }
+  tr:last-child td{ font-style:italic; color:var(--text-secondary); }
+  code{ background:var(--surface-1); border:1px solid var(--border); border-radius:4px; padding:1px 5px; font-size:0.92em; }
+</style>
+</head>
+<body>
+<h1>AdminSCH története</h1>
+<p><em>A KSZK50 prezentáció teljes, folyó szövegű változata — a diák csak a vázlat, ez itt a sztori. A számok mind ellenőrzött git-adatból jönnek (72 adminsch-ng repó + a zolij/adminsch-old legacy, összesen <span data-stat="totalCommits">6245</span> commit, <span data-stat="totalContributors">74</span> ember, <span data-stat="totalRepos">74</span> repó, 2013-tól napjainkig).</em></p>
+<hr>
+<h2>Rólam</h2>
+<p>Na hát akkor magamról. Én még 2018-ban kezdtem a KSZK-ban, majd az idő során sorban vettem fel a különböző kalapokat. Voltam a virtualizációs klaszterünk (vmware) rendszergazdája, Devteam körvezető, a képzés főmentora, a konténerizációs (k8s) klaszterünk rendszergazdája és végül még egy pár dolog, melyet nem is említettem. Aztán az utóbbi majdnem négy évben Dániában éltem, ahol egy sportfoglalkozó cég infrastruktúráját és rendszereit kalapáltam. Az utóbbi három hónap óta újra itthon lakom.</p>
+<p>Úgy ahogy sokan mások, én is a Schönherzbe beköltözve kezdtem a BME-n. És hát fogalmam se volt a KSZK rendszereiről. Regisztráltam a Schacc-omat, bevittem a holmimat a szobámba, egyszer lementem UTP kábelt összerakni a KSZK-sokkal és ennyi volt az interakcióm. Talán egyszer panaszkodtam, hogy mennyire zavaró, hogy két eszközzel nem lehet ugyanazt az IP-t használni a ticketing rendszeren. De ennyi.</p>
+<p>Aztán valahol tavasszal beszippantott a KSZK képzése és végül a nyár folyamán, immáron újoncként kezdtem el foglalkozni az AdminSCH projekttel. Bevallom, ekkor még nagyon alacsony volt a tudásom, soha nem kódoltam hasonló weboldalt. De volt egy kis ismeretem és ez elég volt, hogy 2019 nyarán beüljek egy projektgyűlésre. Itt fogadott minket Kiss Tomi, Marcselló és Márki-zay Feri egy üres táblával. Mit ne mondjak, az előadásunk végére rendesen telerajzolták nekünk a táblát.</p>
+<hr>
+<h2>Intro</h2>
+<p>Na hát sziasztok! A mai napra az AdminSCH-t hoztam mint téma. Rögtön bele is ugranék, aztán később bemutatkozok.</p>
+<p>Szóval, a mai napra az AdminSCH-t hoztam mint téma. Mennyien vagytok itt akik csak felszínesen vagy nem is találkoztak ezzel a rendszerrel?</p>
+<p>Oké, akkor szedjük is szét. A KSZK — Kollégiumi Számítástechnikai Kör — egy 1976 óta működő hallgatói szakkollégium a Schönherz kollégiumban: öt csapata (Sysadmin, NETeam, DevTeam, SecurITeam, HaT) tartja üzemben a kollégium, és részben az egész BME kar informatikai infrastruktúráját — szerverektől a hálózaton át a webes szolgáltatásokig (bővebben: <a href="https://kszk.bme.hu/">kszk.bme.hu</a>). Rengeteg komplex rendszernek a gazdája, fenntartója, és pont ez a kihívás az, mely a Schönherz Adminisztrációs felületére igényt teremtett, avagy rövidebb nevén az AdminSCH-ra.</p>
+<p>Így néz ki ma:</p>
+<p><img src="assets/adminsch-live.png" alt="Az admin.sch.bme.hu élő felülete"></p>
+<p>Kezdjük a KSZK első kihívásával. A felhasználó kezelés. Beköltözéskor sokan láthatták, hogy az első dolgotok egy új fiók létrehozása volt — a Schacc készítése. Amire a Senior-ok csak úgy referáltak, mint a fiók, mely a Schönherzes közéletbe elengedhetetlen.</p>
+<p>Ti hogyan oldanátok meg körülbelül 500 új diák regisztrációját, annak elbírálását és email fiók generálását? Milyen kihívásokkal küzdenétek meg? Hogyan tennétek az egészet biztonságossá?</p>
+<p>Aztán hogyan oldjuk meg, hogy ezek az új felhasználók tudjanak internetezni a koli falain belül? Akár Wifin, akár a kábelen keresztül. Hogyan társítok egy IP címet egy adott eszközhöz úgy, hogy azt a koliban lakók maguk meg tudják oldani?</p>
+<p>Honnan tudom mégis, hogy egy diák amúgy a koliban lakik? Na és ha már internetet biztosítunk, hogyan vonjuk meg ezt valakitől, ha az internet szabályzattal szemben kihágást követ el?</p>
+<p>És igen, az elmúlt 13 évben pont ezeket a kihívásokat kellett megoldjuk — és sok mást. Megannyi KSZK-s generáció munkájáról szeretnék kicsit mesélni.</p>
+<!-- @stat-row -->
+<!-- @hr -->
+<!-- @md-only -->
+<p><strong>Számokban:</strong> <span data-stat="totalCommits">6245</span> commit (merge nélkül), <span data-stat="totalRepos">74</span> repó, <span data-stat="totalContributors">74</span> közreműködő, 13 év git-történelem. A git-történelmünk 2013-ig nyúlik vissza — maga a rendszer még ennél is korábbi.</p>
+<hr>
+<h2>Sztori és szakma</h2>
+<h3>Ugorjunk vissza — az időtvonal</h3>
+<p>Ugorjunk is kicsit régebbre, nézzük meg ennek az időtvonalát. Mind a 73 repó életciklusa, az első commit-tól az utolsóig — indulás szerint rendezve, kategória szerint színezve. A szürke sávok már archiválva vannak — nem hibáztak, csak lezárt fejezetek, erről bővebben lentebb.</p>
+<!-- @chart id=timeline legend=timeline labels=true -->
+<!-- @md-only -->
+<p><em>(Interaktív verzióban: a repó-idővonal ábra, mind a 73 repó életciklusa.)</em></p>
+<p>Az, hogy a KSZK-sok feleljenek a hálózatért, már nagyon régen elindult. Akkor még egészen minimálisan volt automatizálva. Olyan legendákat is hallottam, hogy egy ponton fizikai papír formot kellett a beköltözőknek kitölteni, hogy kapjanak internetet.</p>
+<h3>2013 — a legacy</h3>
+<p>A KSZK-nak már a 2000-es évek eleje óta volt egy admin-eszköze, „Admintools&quot; néven — jóval a git előtt, arról nincs is commit-történelem, csak egy régi KSZK-s Youtube-videón látható még akcióban: <a href="https://youtu.be/uL8Mxj5aKm8?si=A2iu80lZ_b6GmINH&amp;t=268">youtu.be/uL8Mxj5aKm8?t=268</a>. Az AdminSCH ennek nem a folytatása vagy átírása, hanem egy önálló, nulláról épülő rendszer: Zolij <strong>2013. február 11-én</strong> kezdte el írni, immár a Sch adminisztrációjának teljes lefedésére szánva — innentől beszélhetünk „AdminSCH&quot;-ról, és innentől van git-történelem is (<code>adminsch-old</code> repó, első commit).</p>
+<p><img src="assets/admintools-2014.png" alt="Az Admintools felülete, 2014"></p>
+<p>Zolij Adminsch-jának hívtuk, hiszen ő volt az, aki legfőbb emberként összerakta. Ez egyébként egy mellékes projektje volt az egyetemi dolgai mellett, ugyanis ekkoriban írta az Authsch-t is szakdolgozatként. Nem csak írta — 2016 elejére be is vezette: onnantól az Authsch adta a tagság-adatokat, ő lett AdminSCH tényleges identitás-forrása, nem csak egy párhuzamos projekt. Biztonsági kérdésekben sem volt hanyag: 2016 legvégén két valódi CVE-t (CVE-2016-10033, CVE-2016-10045) is lefoltozott a PHPMailer-ben, alig pár nappal azok publikálása után. Kb. 1200 az 1369 commitból az <code>adminsch-old</code>-ban tőle van — <strong>évekig gyakorlatilag egyedül vitte</strong>, bár sosem volt teljesen egyedül: már 2014-től felbukkan pár más név is a repóban (összesen olyan 14 emberé, az évek során), köztük egyszer jómagam is, 2023-ban. És ha megnézzük, mennyit dolgozott összesen minden repóban: 1235 commit, 2013-tól 2018-ig, néhány kisebb megjelenéssel még 2019-ben is — sőt utoljára még 2021 novemberében is jóváhagyott egy pull requestet. Ez pontosan ugyanabban a nagyságrendben van, mint amennyit később Márki-Zay Feri (1064) vagy én magam (1249) tettünk bele a rendszerbe. <strong>Zolij önmagában az első generáció</strong> — nem lábjegyzet, hanem egyenrangú alapító.</p>
+<p>Az első egy hónapja sokat elárul: 2013. február 21. és március 10. között lerakta a teljes alapot — díjcsomagok az SQL-ből, színes beléptetők az iDP-ről, szobaszám a FIR-ből, MAC-cím a hálós adatbázisból. Ugyanez a szobaszám–MAC–FIR hármas köszön vissza a mai Fir-service-ben is.</p>
+<p>Ezzel az oldallal először nem is volt baj. De aztán hamar kihullottak a csontvázak, és évekre előre rémálmot okozott többeknek a KSZK-ban. Viszont kiemelném, hogy az akkori ígéretét igenis beváltotta a rendszer, és elképesztően sok ötletet, megoldást emeltünk később át.</p>
+<h3>2015–2019 — az újraírási kísérletek</h3>
+<p>Már 2015-ben, vagy még előbb elindult az igény, hogy átstrukturálják és újraírják. Kétszer meg is próbálták Zolij vezetése alatt — sikertelenül. Na de miért volt erre szükség?</p>
+<p>Hát igazából mint minden újraíráskor, itt se volt már senki, aki tényleg átlátja, tudja fejleszteni és ráadásnak a kód se segített a helyzeten. Senki nem mert, és nem is akart hozzányúlni — meg lehet, az emberek úgy érezték, tudnak jobbat összerakni.</p>
+<p>Aztán egy napon jött a hír az egyetemtől: 2019-ben szeretnék, ha a fizetős rendszer beüzemelődne a hálóregisztrációhoz. És hát a srácok sietve összedobtak egy új verziót. Úgy, hogy nem igazán értették a dolgokat — többen még akkor sose kódoltak ilyen mélyen PHP-ban, és sok megoldás lábon lövés volt inkább.</p>
+<p>Csak hogy éreztessem, a Merge request-je a fizetős rendszernek így nézett ki: Torma Kristóf requested to merge <code>bmejegy</code> into <code>kanci</code> (a <code>kanci</code> volt a tényleges production branch, nem <code>master</code>), 2019. július 1. <em>“Please dear Maintainer let our dear users pay their due.”</em> 👍 5. Az Activity alatt Pünkösd Marcell kommentje: <em>“It will be great. I am waiting so much. Please merge. Thank you and good bye.”</em> (A tényleges merge-ölést végül Janega Zoltán vitte véghez, ugyanaznap.)</p>
+<p>És a commit-ok nagy része így nézett ki utánna:</p>
+<!-- @commit-log -->
+<blockquote>
+<p><strong>„price on networkRegistration.php form final5”</strong> — Madarász Bence, 2019. április 4.</p>
+<p><strong>„price on networkRegistration.php form final4”</strong> — Madarász Bence, 2019. április 4.</p>
+<p><strong>„price on networkRegistration.php form final3”</strong> — Madarász Bence, 2019. április 4.</p>
+<p><strong>„Merge remote-tracking branch ‘origin/bmejegy’ into bmejegy”</strong> — Madarász Bence, 2019. április 4.</p>
+<p><strong>„price on networkRegistration.php form final2”</strong> — Madarász Bence, 2019. április 4.</p>
+</blockquote>
+<p>Egyszerűen lehetetlen volt a dolgokat jól tesztelni, folyton nyelvi hibákba futottunk és a kód struktúrája is nehezen átlátható volt. De nem is lehetett csak úgy eltörni, mert akkor megáll minden a koliban. 🔥</p>
+<p>De igazából én is csak rémtörténeteit hallottam ennek az időszaknak. Egy biztos, hogy valamit változtatni kellett.</p>
+<h3>És akkor kanyarodjunk vissza</h3>
+<p>Mire én már megérkeztem, addigra egy egészen menő architektúrával drukkolt elő a csapat, és kellemes átállási tervet is készítettek. Igen, azért, ha már harmadjára próbál valamit újraírni egy csapat ember, akkor csak felkészültebbek lehettek. Persze nem volt tökéletes, de lehetővé tette az újraírást. Vizsgáljuk is meg nagy vonalakban.</p>
+<p>Ti hogyan szerveznétek át egy hatalmas rendszert úgy, hogy akár több generációnyi KSZK-s is tudja később fejleszteni, anélkül hogy átlátná az egészet vagy mindent újra kellene írnia? Igen, mikorszolgáltatás alapú megoldást terveztek — és a végén Feri volt az, aki ezt ténylegesen összerakta és lefektette a konkrét alapokat, amire aztán évekig építkeztünk. Ha Zolij lefektette az első generációt, <strong>Feri tervezte meg és állította össze a másodikat</strong>: ő rakta le a mikroszolgáltatás-alapú architektúra konkrét alapjait. Méghozzá így nézett ki az első iterációja:</p>
+<p><img src="assets/arch-v1.png" alt="Az első iteráció architektúra diagramja: Legacy Admin.SCH és az új Admin.SCH Kubernetesen"></p>
+<p>Ott bal oldalt volt egy nagy virtuális gépünk, amin futott a Legacy AdminSCH és egyébként ugyanitt ment a fenti zöld Apache proxy is. Ez a gép tele volt cronjobokkal amik PHP modulokat hívtak (például schacc rehez), innen jöttek a levelek, ez hívott be igazából mindenhova. Végtelen olyan dolog, amit csak később fedeztünk fel igazán. Mikor ott hagytam, még ez a VM mindig megvolt mint mini proxy, mert az IP címe egyes helyekre benne volt a tűzfal szabályokban. :)</p>
+<p>De úgy képzeljétek el, hogy például évi háromszor valakinek be kellett lépnie erre a gépre csak azért, hogy átírjon egy számot egy elrejtett fájlban, amivel megtudta mondani a weboldalnak, hogy éppen melyik félévben vagyunk. Sőt talán még az adatbázisban is kellett valamit frissíteni. :)</p>
+<p>Aztán ott jobb oldalt volt az érdemi része a dolgoknak, amin mi dolgoztunk. Lényegében írtunk egy Python alapú átmeneti frontendet, ami egy az egyben ugyanúgy nézett ki mint a régi AdminSCH. Csak a funkcionalitást kiszervezte magából más service-ekbe. Tehát ha valaki lekérte a lista tagságait akkor nem ez a python app kérte le közvetlen, hanem volt egy másik microservice. És ez a logika mentén írtunk meg mindent.</p>
+<p>És pont mikor megérkeztem tettük meg az első átállást erre a rendszerre, 2019 szeptemberére már aktívan ment a fenti megoldás első verziója. Amikor most visszaolvastam a saját commitjaimat, kiderült, hogy jóval többet csináltam annál, amire emlékeztem: nem csak CSS-t pofoztam, hanem az adminview-service-be én raktam bele a sávszélesség-korlátozás egész logikáját, az ap-service-t és a mac-service-t is én kötöttem be a frontendbe — MAC hozzáadás, törlés, csere, saját eszközök megtekintése. Ez volt az első igazi, gépezet-mélységű munkám a rendszeren, csak épp akkoriban magam sem így éltem meg. A cikket is írtunk a weboldalunkra erről: <a href="https://kszk.bme.hu/articles/mi-az-a-microservice-ujrairtuk-az-admin-sch-t">kszk.bme.hu/articles/mi-az-a-microservice-ujrairtuk-az-admin-sch-t</a></p>
+<p>Feri ekkoriban gyakorlatilag mentorom volt — egyik fő hajtóereje annak, hogy egyáltalán bele mertem vágni. Állati sok hülye kérdést tettem fel neki, az biztos, de sosem éreztette.</p>
+<h3>2020–2021 — a lassú évek</h3>
+<p>Na de nem volt kész egyáltalán. Nagyon sok funkció bent ragadt a legacy megoldásban, sok nyitott kérdés maradt.</p>
+<p>Ami viszont innen visszanézve kiderül: 2020 valójában egyáltalán nem volt tétlen év — csak épp csendben zajlott, és kevesen tudtak róla. Feri ekkor rakta le szinte egyedül a reg-service alapjait, és — ami talán még fontosabb — a helm-charts/ci-templates devops-alapokat, amikre a mai napig épül a Kubernetes-klaszterünk. Agócs Dániel egy hét alatt megírta a vlan-service-t az alapjaitól — az egyik commit-üzenete szó szerint „Removed halosdb access&quot;, azaz pont akkor szűnt meg a nyers adatbázis-hozzáférés, amiről lentebb mesélek. És marcsello vitte a terhet mindhárom hálózati szinkronizálón (DNS, RADIUS, DHCP), gyors, tömény sprintekben — Sanya és Marcell Pünkösd besegítettek egy-egy darabnál —, a commit-üzenetei is elárulják, mekkora nyomás alatt készültek: az egyik, 2020 februárjából, szó szerint ennyi: „mostmar leszarja&quot;.</p>
+<p>Csak 2021-ben állt meg tényleg minden: akkor tényleg elakadtunk, sokan eltűntek a projektből, elfoglaltak lettek. Félkész állapotban maradt, lassú volt és nem is a legmegbízhatóbb.</p>
+<p>Sokszor voltak kieséseink az infrastruktúra miatt, sok dolgot még mindig csak adatbázis-hívásokkal lehetett megoldani. De komolyan, azzal hogy “segédnetadmin”-ná váltál a KSZK-ban, kaptál egy hozzáférést a hálós adatbázishoz, ahol egyes mezőket tudtál átbillenteni a felhasználóknak. Egészen kellemetlen élmény volt és sok sebből vérzett.</p>
+<!-- @p class=stat-line -->
+<p>A commitszám ezt a kettősséget mutatja is — 2020-ban 727 commit, majd 2021-ben mindössze 92. Íme az egész 13 év, évenként:</p>
+<!-- @chart id=yearly -->
+<!-- @chart id=repos -->
+<h3>2021 vége — Feri rám bízza a frontendet</h3>
+<p>Aztán 2021 végén Feri megtalált azzal, hogy találjak valami jó megoldást a Frontendre. Nekiálltam: elkezdtem a különböző dolgok tesztelését, rengeteg kódot írtam ekkoriban és kihasználtam a vizsgaszünet adta extra időt januárban — és meg is találtam a jó irányt.</p>
+<p>De nem csak ez történt, ugyanis ekkor jött az ötlet Marcsellótól és Adriántól, hogy szervezzünk egy KSZK hackathont. Hozzuk össze az embereket egy hétvégényi kódolásra. És úgy döntöttünk, hogy AdminSCH lesz a téma, sőt valahogy megkapta az egész vezetéséhez a sapkát is.</p>
+<p>A hackathon „egy hétvége alatt mindent újraírtunk” érzése mögött valójában évek előkészülete állt. Az auth-service már 2019 júliusa óta élt — Feri írta az első commitját —, az ip-service pedig 2020 februárjában kezdte el használni a JWT-t, tehát a hitelesítési gerinc jóval a hackathon előtt megvolt. Sőt, 2022 márciusában, három hónappal korábban, én és Feri egyazon napon (március 19.) külön-külön már a JWT bevezetésén dolgoztunk: én a react-app dev és prod környezetében, ő az auth-service teszteken. Amikor aztán elérkezett a hackathon hétvégéje, ez a már bejáratott alap futott neki élesben — napokon belül négy-öt szolgáltatás (auth-, dns-, reg-service, react-app) kapta meg a JWT-integrációt egymás után.</p>
+<p>Tehát ott voltam 2022 elején, ötletem se volt pontosan hogy hogyan néz ki az AdminSCH, próbálom kitalálni milyen frontendünk legyen és Május végén lesz egy több napos hackathon. Ja és ugyanekkor épp főmentor voltam a kszk képzésén.</p>
+<img src="assets/this-is-fine.gif" alt="This is fine — kutya ül a tűzben" width="140">
+<p>De valahogy pont összeálltak a dolgok. Az infrastruktúránkat eddigre rendbe tettük, voltak megbízható rendszereink. Konténer orchesztrációnk teljesen automatizált volt és megbízható, Gitlabunk működött, volt saját konténer registry-nk, igazából a teljes Devops Suite™. Mondanom se kell, de akkoriban egészen sokan dolgoztunk már cégekhez ahol pont ugyanezeket csináltuk és könnyedén letudtuk automatizálni.</p>
+<p>Úgyhogy a tavasz során egyszerre több dolog is megtörtént, ugyanis lett egy Májusi határidőm hogy a hackathon-ra, avagy AdminSCH Code-ra minden legyen kész hogy könnyedén tudjanak az emberek hozzáadni.</p>
+<p>Elkészítettünk egy dev környezetet. Összeraktuk az automatizált workflow-t ehhez. Lényegében ha egy új változást helyeztél ki, az azonnal ment a dev-re, azonnal tudtad tesztelni és az automatikus tesztek után. Majd pedig mikor megtageltél egy állapotot git-en, az azonnal ment Prodra. Sőt egy “új verzió” összefoglaló is bejött a chat platformunkra, Mattermostra. Ráadásul még saját Sentry-nk is volt, mely lényegében ha használat közben valaki belefutott egy error-ba, arról rögtön küldött nekünk üzenetet. Élőben tudtuk követni ahogy egy új funkció után hogyan törik el a felhasználók alatt egy-egy dolog és hol. Úgyhogy nagyon gyors iterációval, sok átláthatósággal tudtunk fejleszteni.</p>
+<p>Már tényleg csak fejleszteni kellett és bevonni új embereket.</p>
+<p>Aztán Május végére:</p>
+<ul>
+<li>Minden rendszert feltártam a háttérben, hozzáférést szereztem mindenhez és megértettem minden rendszert. Majd pedig ezt ledokumentáltam az ekkor szintén friss YouTrack rendszerünkbe.</li>
+<li>A teljes kódbázist átszerveztem, archiváltam sok mindent, olyan állapotra hoztuk Ferivel hogy egy hackathon során lehessen rajta dolgozni.</li>
+<li>Szétszedtem a teendőket megfelelő taszkokra.</li>
+</ul>
+<h3>2022. június 25. — AdminSCH Code</h3>
+<p>És többen tartottunk aznap egy előadást és elindult a fejlesztés. <em>(Fotók: <a href="https://spot.sch.bme.hu/photo/2022/20220625_adminsch_code/">spot.sch.bme.hu/photo/2022/20220625_adminsch_code</a>)</em></p>
+<p>Mondhatni, jobb motiváció nincs is arra, mint igent mondani egy ilyenre, majd pedig hónapokon át az összes szabadidőd elégeti. De végül sikerült mindent időben előkészíteni, mindenki megjelent, az öregek biztosították a végtelen alkoholt és energia italt. És ekkor ott végre láttuk hol a vége, mit kell még lefejleszteni és megszülettek az első igazi diagrammok, prezentációk.</p>
+<p>Ha megnézzük, ki mit épített azon a hétvégén: Gelencser Ákos vitte a React-frontend gerincét (jogosultságok, navigáció, a teljes regisztrációs folyamat), Bence Orosz nulláról felhúzta az account-service-t (a repó első commit-üzenete tőle: „i should create this earlier&quot;) és jelentősen kiépítette a márciusban már elindult schacc-service-t, marcsello egymaga megírta a workflow-service-t — az első commit-üzenete „Initial commit (it really is)“, a többi pedig arról tanúskodik, hogy tényleg sárkányokkal küzdött közben („Fought dragons”, majd „Cleaned up dead dragon bodies&quot;) —, zoleee pedig élőben, kommentelve újraírta az email-service-t. Feri közben mélyen benne maradt a háttérben: a JWT-t és a license-service-t kötötte be az auth-service-be, és márciustól szeptemberig ő vitte tovább a backend gerincét, nem csak azon a hétvégén.</p>
+<p>A RabbitMQ-s hálózati automatizálás két lépésben állt össze: a reg-service már június 26-án, a hackathon hajrájában megkapta Feritől a RabbitMQ-integrációt, a vlan-service pedig csak október 18-án zárkózott fel hozzá — onnantól működött élesben a teljes lánc, amit fentebb leírtam.</p>
+<p>A hackathon utáni hetek nem mentek zökkenőmentesen. Az account-service-nél augusztus 26–27-én egy teljes funkció-kör (email-reset, API-frissítések) landolt Bence Oroszttól, majd másnap mind a négy commit vissza lett vonva — és a commit-üzenetek szerint „fix endpoints broken by stupidity”, illetve „fix endpoints eskujolessz” felirattal épült újra. A fir-service-nél pedig egy több frontos, négynapos stabilizációs harc zajlott: a service-nek Postgres és MySQL között kellett váltania (<code>Fix databases</code>, majd <code>Revert db hack</code>, majd <code>Use binary psycopg2</code>), közben az uwsgi három nekifutásból kapta meg a helyes buffer-méretet, mire a nagy kérés-fejlécek nem törték el a szervert.</p>
+<p>Vizsgáljuk is meg hogy hol álltunk ekkor — a hackathon utáni teljes architektúra, service-ről service-re szétszedve, funkció szerint csoportosítva:</p>
+<ul>
+<li><strong>Bejelentkezés &amp; jogosultság:</strong> Auth-service (saját DB: <code>adminsch_auth</code>) — Authsch mögötte</li>
+<li><strong>Regisztráció &amp; hálózat:</strong> Reg-service + AP-service (saját DB: <code>adminsch_reg</code> — szint, user, SSID, channel, MAC), VLAN-service (saját DB: <code>adminsch_vlan</code>, szinkron a DHCP Syncerrel a NOC-on)</li>
+<li><strong>Scraperek:</strong> Fir-service (<code>adminsch_fir</code> ← Kefir), Pek-service (<code>adminsch_pek</code> ← Pék.sch), bme-net-filter-service (<code>adminsch_bmenet_filter</code> ← <a href="http://net.bme.hu/filter">net.bme.hu/filter</a>) — mind az Auth-service-nek jelent</li>
+<li><strong>Kommunikáció:</strong> Email-service, Exchange-service, Sympa-service, Schacc-service (→ Mail.sch, Lists.sch)</li>
+<li><strong>Külső integrációk:</strong> Windows-service (→ Active Directory), netwatcher-service (saját idősoros DB: InfluxDB, ← Netwatcher data provider), ipwave-service (↔ ipwave)</li>
+<li><strong>Admin felület:</strong> Adminview-service (saját DB: <code>adminsch_adminview</code>, ← Adminview Syncer), React App — a Kubernetes Loadbalancer routolja: <code>/services/&lt;name&gt;</code> a megfelelő service-hez, <code>/</code> → React App</li>
+<li><strong>Egyéb szolgáltatás:</strong> DNS-service + DNS-acme-service (saját DB: <code>adminsch_dns</code>), I42-service (saját DB: <code>adminsch_i42</code>, a DNS-service-t használja), Workflow-service (saját DB: <code>adminsch_workflow</code>), License-service (saját: MongoDB), doc-service (még csak terv — async API)</li>
+<li><strong>Közös infrastruktúra:</strong> RabbitMQ — üzenetsor, ez köti össze a service-eket egymással. Minden kérés URL alapján jut a megfelelő service-hez, az azonosítás pedig mindenhol JWT-vel (JSON Web Token) történik</li>
+</ul>
+<p>Amikor egyszer valaki megkérdezi, pontosan hogyan is jut internethez egy új lakó a kollégiumban — hát pont ez volt a kérdés, amit az elején feltettem. A válasz: regisztrálsz egy IP-t az AdminSCH felületén (fejenként 2 publikusat, akármennyi MAC-cel), ez eljut a reg-service-hez, onnan pedig a VLAN-service-hez. Eközben fut egy Radius syncer és egy DHCP Syncer is a NOC-on, ami 2 percenként lekérdezi a friss adatokat, és feltölti velük a RADIUS, illetve a DHCP szervert. Amikor a géped csatlakozik, a switch a RADIUS-on keresztül lekérdezi, melyik VLAN-ba kell tennie a portot — ezt hívjuk Port Auth-nak —, utána jön egy sima DHCP kérés, és kapsz egy IP-t. Ha valaki nem kollégista, vagy nincs rá jogosultsága, azt a Fir- és Pék-service szűri ki előtte. Ilyen egyszerű — mondjuk két tucat service és pár év fejlesztés árán.</p>
+<p><img src="assets/network-diagram.png" alt="A hálózati architektúra: RADIUS, DHCP, VLAN-service és a switchek"></p>
+<blockquote>
+<p><strong>„Látható, itt már nincs PHP-megoldás, minden újra van írva.”</strong>
+És hát ez volt a cél. Vagy legalábbis az álom.</p>
+</blockquote>
+<h3>2022 december — a második workshop</h3>
+<p>Amiről a legtöbben nem is tudnak: a júniusi hackathon nem volt az utolsó közös munkanapunk azon az éven. December 13. és 19. között tartottunk egy második, kisebb workshopot, <code>adminsch-workshop</code> néven. Itt dőlt el végleg, hogy a windows-service — ami eddig az Active Directory felé beszélt — egyszerűen beleolvad az account-service-be. Ez magyarázza, hogy a mai architektúra-ábrán miért nincs is már külön windows-service: csak egy account-v2-service van, ami közvetlenül beszél az AD-vel.</p>
+<p>Ugyanekkor a frontend is nagyot lépett: kirepült a Create React App, helyette Vite lett a build-eszköz, eltűnt a Bootstrap és a react-toastify, és megérkezett az első profil- és jelszóváltoztatási oldal. Apró, de az egész csapat számára érezhető modernizálás — pont karácsony előtt egy héttel.</p>
+<h3>2023 nyár — lezárás</h3>
+<p>Majd pedig a jövő hónapokban sorban finomítottuk az összes összedobott dolgot. A kubernetes rendszerünk az év végére megbízható lett, a service-ek nagy része már közel volt a kész állapothoz.</p>
+<p>És végül egy évre rá, 2023 nyarán megszerveztük a final AdminSCH Code-ot. Ahol mindent befejeztünk és meghoztuk a döntést mindenkivel, és az akkori netadminnal (a hálózatért felelős vezetővel): hogy legyen, „let’s go&quot;. Akkor átálltunk.</p>
+<p>A régi <code>adminsch-old</code> repó ezzel gyakorlatilag lezárult — de nem azonnal. 2023 szeptemberében én magam is belenyúltam egy utolsó alkalommal (a TTK kart is felvettem az engedélyezett karok közé Schacc-regisztrációhoz), majd október 5-én, névtelen <code>root</code> felhasználóként megszületett a tíz év alatt az utolsó két commit: „Enable actual error logging&quot; és „Fix AD Endpoint&quot;. Ennél szebb zárósort nehéz lenne kitalálni egy rendszernek, ami tíz éven át működött, főleg annak ellenére, hogy szinte senki sem látta rendesen, mi történik benne.</p>
+<h3>2024–2026 — a stafétabot</h3>
+<p>Igazából nem is 2023 nyara után léptem ki a képből — még négy hónapig, egészen 2024 februárjáig egyedül vittem tovább a saját frontjaimat: megírtam az <code>account-v2-service</code>-t nulláról (JWT-scope-ellenőrzés, egy LDAP-kliens beépített healthcheckkel, ami leállítja magát, ha az AD nem elérhető), és összeraktam egy <code>frontend/b2b-app</code> nevű felületet is — ami félrevezető név, valójában nem holmi „B2B&quot; termék, hanem egy belső, react-admin-stílusú kezelőpanel a KSZK-soknak: csoport-, szerver- és személyes regisztrációk, árazás, fenntartott IP-k, DNS-rekordok CRUD-ja, mind egy helyen.</p>
+<p>2024 februárjában aztán tényleg leálltam — és onnantól több mint két évig szinte semmit sem commitoltam, egyetlen elszórt commit kivételével 2026 májusában. Eközben átvette a stafétabotot egy új generáció: Pomucz Tomi és Wendl Lili vitte a legtöbbet, de rendszeresen dolgozott rajta Spyro, Szenes Márton Miklós, zsotroav (más néven Török Zsombor), Tóth Elíz, Tőrös András, Bence Orosz és mások is.</p>
+<p>Amit a git mutat: a rendszer nem állt nyugalmi állapotba, hanem tovább finomodott — sőt, az egyik legrégebbi kihívásunk végre valódi megoldást kapott. Az <code>email-service</code>-ből <code>email-v3-service</code> lett (meglepően már a harmadiknál tartunk), a <code>workflow-service</code>-ből <code>workflow-v2-service</code> — a 2022-es microservice-eknek szépen sorban megjött a második nekifutása.</p>
+<p><strong>2024 augusztusában</strong> Kiss Tomi és Pomucz Tomi egy nagy, összehangolt munkával — a frontend, az auth-service, az account-v2-service, az email-v3-service és a workflow-v2-service egyszerre változott — nekiálltak annak, amit a legelső kihívásként feltettem az elején: <strong>hogyan oldjuk meg 500 új diák önkiszolgáló regisztrációját.</strong> A funkció neve „schaccreg&quot; lett — ez a név egyébként már 2022 óta ott lapult egy auth-service commit-üzenetben, csak korábban nem épült köré teljes önkiszolgáló folyamat. Még ők maguk is megjegyezték egy commitban, hogy a név félrevezető, és át kellett nevezni rendes regisztrációra. 2025-ben jött hozzá az impersonation-funkció (hogy egy KSZK-s a felhasználó nevében is végig tudja csinálni a folyamatot support céljából), 2026 augusztusában pedig még mindig csiszolgatják — legutóbb egy figyelmeztető üzenetet adtak hozzá gólyáknak. Tíz évvel az után, hogy feltettem a kérdést, végre van rá önkiszolgáló válasz.</p>
+<p>Egy másik régi probléma is megoldódott: a NAT mögötti eszközök hálózati regisztrációja. Első nekifutás 2024 nyarán volt a reg-service-ben (<code>natreg</code> branch, Bence Orosz és Hunor Toth), kicsit döcögősen. A végleges megoldás 2026 januárjában született meg, <code>sch-natgw-sync</code> néven — Wendl Lili és Pomucz Tomi a NAT mögötti routerekkel beszélő szolgáltatást írtak, VRRP failover-állapottal és Prometheus-metrikákkal, és a munka a mai napig tart. Mellé zsotroav egy egész hibakereső felületet épített a frontendbe (hogy a felhasználók maguk tudják diagnosztizálni a NAT-os gondjaikat), Tőrös András pedig a NAT-táblázat felületét, míg Tóth Elíz 2026 elején egy sor konkrét NAT-hibát javított ki.</p>
+<p>A <code>levlista-service</code> — nálunk ez a levelezőlista-kezelés (Google Groups és Microsoft Exchange disztribúciós listák szinkronban tartása), gyakorlatilag a régi Sympa-service utódja. Nem volt egyenes út: Spyro 2024 őszén nekiállt, majd egy ponton feladta — a commit-üzenete szó szerint „I give up, but i’ve written down what i know&quot; —, aztán hét hónapig senki sem nyúlt hozzá. 2025 júliusában maga Spyro tért vissza hozzá, majd az őszi hónapokban Szenes Márton Miklós vitte sokkal tovább, a saját <code>second-release</code>/<code>second-release-extra-features</code> branch-eivel — és a munka azóta is aktívan folyik.</p>
+<p>2026 márciusában egy vadonatúj <code>notification-service</code> is született — Szenes Márton Miklós indította el, Spyro pedig napokon belül csatlakozott és lett a legaktívabb közreműködője. Egy generikus értesítő-rendszer ez API-kulcsokkal, feliratkozásokkal, email- és Discord-webhookos küldéssel, aminek egy része egy másik KSZK-s rendszerből, a „belepteto-sch&quot;-ból lett újrahasznosítva.</p>
+<p>A friss architektúra-ábra szerint közben pár kisebb, de hasznos darab is becsatlakozott: egy <code>log-service</code>, egy <code>expire-job</code> (lejáró dolgok takarítására), egy <code>fir-job</code>, egy <code>mac-oui-service</code>, és — a névválasztás magáért beszél — egy <code>daily-restart-hack</code> nevű cronjob. Az <code>account-v2-service</code> mostanra közvetlenül beszél az Active Directory-val, az <code>email-v3-service</code> pedig az Outlook SMTP API-val — szóval az egyetemi Microsoft-infrastruktúrával is egyre szorosabb az integráció.</p>
+<p>A devops-oldal sem volt mentes a szenvedéstől: 2025 novemberében Tóth Elíz két egymást követő napon írta be a helm-charts repóba, hogy „I am losing my goddamn mind&quot;, majd „Added weight because kube is a lousy motherfucker&quot; — a Kubernetes-klaszter, amire az egész rendszer épül, néha 2025-ben is ugyanolyan makacs tudott lenni, mint 2020-ban.</p>
+<p>Szóval a történet nem állt meg 2023-ban, és nem is csak simán továbbfolyt — közben lezárult egy tíz éve nyitva álló kérdés is. Most, hogy visszaköltöztem, pont jókor van itt ez az előadás, hogy behozzam a lemaradást. :)</p>
+<h2>Architektúra</h2>
+<h3>Architektúra három állapotban</h3>
+<p>A rendszer sosem egyetlen pillanatban jött létre — így nézett ki 2019-ben, így 2022 után, és így néz ki a hálózati automatika, amire a legbüszkébbek vagyunk.</p>
+<!-- @diagrams -->
+<!-- @md-only -->
+<p><em>(Interaktív verzióban mindhárom diagram nagyítható, és valódi, szerkeszthető draw.io-fájlként is elérhető az <code>assets/diagrams/</code> mappában.)</em></p>
+<p>Ha megnézzük a rendszert funkció-kategóriánként szétbontva — hol folyt a legtöbb munka az elmúlt 13 évben —, hat nagy kategória rajzolódik ki: bejelentkezés/jogosultság, regisztráció/hálózat, scraperek, kommunikáció, külső integrációk és az admin felület. A 73 mai repó mindegyike ezek valamelyikébe tartozik. Ha pedig tisztán a nyers commit-mennyiség szerint rangsorolunk, a régi <code>adminsch-old</code> repó a mai napig #1 — tíz évnyi PHP-történelem nem múlik el nyomtalanul egyetlen újraírás alatt sem.</p>
+<!-- @chart id=category caption="73 mai repó, hat kategóriában" -->
+<!-- @chart id=toprepos caption="Top 12 repó a nyers commit-szám szerint, a maradék 62 egy összesítő sávban" -->
+<h3>Mi épült mikor — dióhéjban</h3>
+<p>Ha valaki csak a funkciókra kíváncsi, íme az egész történet pár sorban:</p>
+<ul>
+<li><strong>2013–2018 (AdminSCH, Zolij alapítása):</strong> Schacc-regisztráció, alap admin felület, kézi(bb) hálózati IP-MAC kiosztás — mind egyetlen PHP-kódbázisban, gyakorlatilag egy ember (Zolij) kezében</li>
+<li><strong>2019:</strong> Python-alapú „transient” frontend a legacy fölé; az első igazi microservice-ek (<code>ip-service</code>, <code>mac-service</code>, <code>dns-service</code>, <code>reg-service</code>); bevezetik a fizetős hálóregisztrációt (innen a <code>final5</code>-ös commit-vicc)</li>
+<li><strong>2020:</strong> csendben, kevesek által észrevéve megépül a reg-service, a vlan-service és a devops-alap (<code>helm-charts</code>/<code>ci-templates</code>) — 2021-ben áll meg tényleg minden</li>
+<li><strong>2022 (AdminSCH Code):</strong> a nagy újraírás — React frontend, körülbelül két tucat önálló microservice, RabbitMQ üzenetsor, JWT-azonosítás mindenhol, Kubernetes-routing, RADIUS+DHCP hálózati automatika</li>
+<li><strong>2022 december:</strong> második, kisebb workshop — a windows-service beolvad az account-service-be, Vite váltja a Create React App-ot</li>
+<li><strong>2023:</strong> finomítás és a végleges átállás — lezárul a legacy PHP-rendszer, stabil lesz a devops pipeline</li>
+<li><strong>2024–2026:</strong> második nekifutás a 2022-es service-eknek (<code>email-v3</code>, <code>workflow-v2</code>); <strong>schaccreg</strong> — végre önkiszolgáló diák-regisztráció, a nyitó kihívásunkra a válasz 10 évvel később; a NAT-regisztráció is megoldódik (<code>sch-natgw-sync</code>); <code>levlista-service</code> (levelezőlista-kezelés, döcögős újraindítással); vadonatúj <code>notification-service</code> és egy belső admin-panel (<code>b2b-app</code>) — a stafétabotot Pomucz Tomi, Wendl Lili és a többiek viszik</li>
+</ul>
+<h3>Az infrastruktúra mögött</h3>
+<p>Ami mindezt ténylegesen működteti, az egy külön történet. A KSZK-n belül a NETeam és a Sysadmin gyakorlatilag ugyanazok az emberek — nem két külön csapatról van szó, aki „besegített&quot; az AdminSCH-nak, hanem ugyanazokról, akik az AdminSCH-t is írták, csak épp a Sysadmin-csoportok GitLab-jában van évekre visszamenő automatizáció, jóval az AdminSCH-n túlra is kiterjedően. Ami ebből közvetlenül idetartozik:</p>
+<p>A konténer registry-t (<code>Harbor</code>) magam raktam le 2021 novemberében — Terraform hozza létre a VM-et, Ansible telepíti és konfigurálja, LDAP-hitelesítéssel. Azóta 69 commit, folyamatos verzió-frissítésekkel (legutóbb 2025 áprilisában v2.13.0-ra), rlacko (a git-userem — ez is én vagyok) is besegített néhány upgrade-be.</p>
+<p>A Kubernetes-klaszter, amin a mai AdminSCH fut, Kubespray-alapú, Cilium hálózattal, cert-managerrel, VictoriaMetrics-szel (Prometheus helyett) és Azure AD-be kötött Grafana/Dex bejelentkezéssel — főleg én és Eck Balázs István tartottuk karban. Ezt a klasztert azóta lecserélték egy újabbra.</p>
+<p>A RabbitMQ üzenetsor VM-jét is én építettem — de nem a hackathonon: 2021. június 29-én, egy egész évvel azelőtt, hogy bármelyik AdminSCH service ténylegesen használni kezdte volna. Amikor 2022 júniusában a reg-service megkapta a RabbitMQ-integrációt, a szerver már egy éve ott állt, várva.</p>
+<h3>Amit archiváltunk</h3>
+<p>34 repó — a mai 73-ból közel a fele — mára archiválva van a GitLabon: vagy leváltotta őket valami, vagy megoldottuk máshogy a problémát, amire épültek. Ezek nem hibák, csak lezárt fejezetek.</p>
+<p>A leglátványosabb csoport a 2019-es Python-generáció kilenc tagja: <code>ap-service</code>, <code>ad-service</code>, <code>exchange-service</code>, <code>mac-service</code>, <code>ipwave-service</code>, <code>dhcp-service</code>, <code>ip-service</code>, <code>template-service</code> és a <code>transient-server</code> — mind ugyanazon a napon, 2022. január 28-án kapta az utolsó commitját (egy rutin „Update python version and Pipfile.lock”), egy nappal azelőtt, hogy a hackathon-előkészület elkezdődött volna. Nem egyenként múltak ki: egyben, csendben nyugdíjazták őket, amikor a júniusi újraírás mindent lecserélt. (Az <code>ad-service</code>-nek közben valódi, éles memóriaszivárgása is volt — 2019 októberében Csaba Zamolyi <code>hotfix/memleak</code> branchen javította.)</p>
+<p>A <code>halosdb-splitter</code> — a nyers adatbázis-hozzáférést kiváltó eszköz — pontosan a hackathon hétvégéjén (2022-07-31) lett fölösleges, amint a service-ek valódi API-kat kaptak. Néhány hackathon-hétvégi ötlet meg sosem jutott túl a vázon: a <code>fir-syncer-job</code> és a <code>net-filter-service</code> egyetlen „initial commit” után abbamaradt, egy korai <code>filter-bmenet-service</code>-próbálkozás (PoC) helyett végül a ma is élő <code>bmenet-filter-service</code>/<code>bmenet-filter-job</code> lett a megoldás, az <code>adminview-mock-service</code> pedig egy tesztelésre szánt mock volt, ami nem nőtt túl a szerepén.</p>
+<p>A <code>license-service-kotlin</code> mellett volt egy Java-s testvérkísérlet is (<code>adminsch-security-java</code>) — öt commit, 2020 végén, aztán soha többé: a Python-verzió (<code>adminsch-security-python</code>, ma 45 tag-gel) vitte el a győzelmet.</p>
+<p>A többi archivált repó (<code>sympa-service</code>, <code>netwatcher-backend</code>, <code>reg-exporter</code>, <code>payment-reader</code>, <code>adminsch-models</code>, <code>adminsch-logging-python</code>, <code>maintenance-site</code>) egyszerűen befejeződött: megcsinálták, amire valók voltak, és nem igényeltek több munkát. A <code>futuresch</code> pedig valójában nem is AdminSCH-projekt volt, inkább egy vicces mellékvágány marcsellotól, tele DNS-mémekkel.</p>
+<hr>
+<h2>Fejlesztések és statisztikák</h2>
+<h3>Kezdeményezések időrendben</h3>
+<p>A teljes commit-történelmen végigmenve ezek a konkrét, névvel azonosítható kezdeményezések rajzolódnak ki — 13 év, egy táblázatban:</p>
+<!-- @event-cards legend=initiatives -->
+<table>
+<thead>
+<tr>
+<th>Kezdeményezés</th>
+<th>Időszak</th>
+<th>Kik</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alapítás (AdminSCH)</td>
+<td>2013-02 – 03</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>WiFi-kezelő modul</td>
+<td>2013-04-11 – 13</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>MAC-kereső v0.1</td>
+<td>2014-05 – 06</td>
+<td>hunbalazs</td>
+</tr>
+<tr>
+<td>Exchange-integráció nehézségei</td>
+<td>2014-07 – 08</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>macsearch — switch-alapú újraírás</td>
+<td>2015-11-09 – 15</td>
+<td>Kalmár Balázs, Zolij</td>
+</tr>
+<tr>
+<td>Címzési séma átdolgozása</td>
+<td>2016-01-07</td>
+<td>Dániel Bakai</td>
+</tr>
+<tr>
+<td>Authsch-integráció</td>
+<td>2016-01 – 02</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>2016 nyár — regisztrációs karbantartás</td>
+<td>2016-07 – 09</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>Jelszó-visszaállítás és AD-felhasználókezelés</td>
+<td>2016-12-03 – 05</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>Belső hálózati regisztráció</td>
+<td>2017-01 – 2018-07</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>UI-modernizálás (toast, inline-szerkesztés)</td>
+<td>2017-10-02 – 17</td>
+<td>Zolij</td>
+</tr>
+<tr>
+<td>RVT→KSZK névváltás</td>
+<td>2019-03 – 10</td>
+<td>marcsello, Janega Zoltán</td>
+</tr>
+<tr>
+<td><code>bmejegy</code> — fizetős hálóregisztráció</td>
+<td>2019-04 – 07</td>
+<td>Torma Kristóf, Márki-Zay Ferenc, Madarász Bence, Sanya</td>
+</tr>
+<tr>
+<td>dns-service — az alapok lerakása</td>
+<td>2019-06-05 – 18</td>
+<td>gyeben</td>
+</tr>
+<tr>
+<td>auth-service és dns-service korai váza</td>
+<td>2019-06 – 07</td>
+<td>Bendegúz Gyönki</td>
+</tr>
+<tr>
+<td>A transient-server és az első microservice-ek felépítése</td>
+<td>2019-06 – 07</td>
+<td>Bodor Máté, Márki-Zay Ferenc</td>
+</tr>
+<tr>
+<td>ap-service — egy nap alatt nulláról</td>
+<td>2019-07-30</td>
+<td>Armin Zavada</td>
+</tr>
+<tr>
+<td>AP/MAC/hálózat-regisztráció UI</td>
+<td>2019-08 – 10</td>
+<td>Laszlo Rafael, Márki-Zay Ferenc</td>
+</tr>
+<tr>
+<td>ad-service megalapítása</td>
+<td>2019-08-07 – 25</td>
+<td>Csaba Zamolyi</td>
+</tr>
+<tr>
+<td>Másodlagos (inner) IP-cím regisztráció</td>
+<td>2019-08-17 – 25</td>
+<td>Adam Kovacs</td>
+</tr>
+<tr>
+<td>ad-service memóriaszivárgás — élesben javítva</td>
+<td>2019-10-03</td>
+<td>Csaba Zamolyi</td>
+</tr>
+<tr>
+<td>template-service — „R works from CRUD”</td>
+<td>2019-12-19</td>
+<td>Csókás Bence</td>
+</tr>
+<tr>
+<td>ipwave-service megalapítása</td>
+<td>2020-01-16 – 18</td>
+<td>Bodor Máté</td>
+</tr>
+<tr>
+<td>Hálózati syncer trió</td>
+<td>2020-02 – 2021-12</td>
+<td>marcsello, Sanya, Marcell Pünkösd</td>
+</tr>
+<tr>
+<td><code>helm-charts</code> + <code>ci-templates</code></td>
+<td>2020-05 – 2021-01</td>
+<td>Márki-Zay Ferenc</td>
+</tr>
+<tr>
+<td><code>reg-service</code> (v1)</td>
+<td>2020-06 – 12</td>
+<td>Márki-Zay Ferenc</td>
+</tr>
+<tr>
+<td><code>vlan-service</code> (v1)</td>
+<td>2020-07-13 – 20</td>
+<td>Agócs Dániel</td>
+</tr>
+<tr>
+<td><code>license-service-kotlin</code> <em>(elvetve)</em></td>
+<td>2020-09 – 2021-07</td>
+<td>Benjamin Peter (kezdte), Márki-Zay Ferenc (a nagyja)</td>
+</tr>
+<tr>
+<td>adminsch-security-java kísérlet</td>
+<td>2020-10 – 11</td>
+<td>Márki-Zay Ferenc</td>
+</tr>
+<tr>
+<td><code>i42-service</code> (szóló kezdő projekt)</td>
+<td>2021-02 – 07</td>
+<td>tothadam</td>
+</tr>
+<tr>
+<td>RabbitMQ-VM felépítése</td>
+<td>2021-06-29</td>
+<td>Laszlo Rafael</td>
+</tr>
+<tr>
+<td>Harbor — konténer registry felállítása</td>
+<td>2021-11-03 – 09</td>
+<td>Laszlo Rafael</td>
+</tr>
+<tr>
+<td>windows-service (eredeti)</td>
+<td>2021-12 – 2022-03</td>
+<td>Bence Orosz, Benjamin Peter</td>
+</tr>
+<tr>
+<td>filter-bmenet-service — korai PoC-próbálkozás</td>
+<td>2022-03-19</td>
+<td>György Kurucz</td>
+</tr>
+<tr>
+<td>netwatcher-backend — a JWT-hitelesítés összerakása</td>
+<td>2022-03-19 – 20</td>
+<td>Cseh Viktor</td>
+</tr>
+<tr>
+<td>AdminSCH Code hackathon</td>
+<td>2022-06-24 – 26</td>
+<td>sokan — ld. fentebb</td>
+</tr>
+<tr>
+<td>email-service — JWT, RabbitMQ és Sentry integrálása</td>
+<td>2022-06 – 11</td>
+<td>Horváth Zoltán</td>
+</tr>
+<tr>
+<td>Személyes regisztráció a frontenden</td>
+<td>2022-06 – 07</td>
+<td>Sinkó Dániel</td>
+</tr>
+<tr>
+<td><code>vlan-service-ng</code> <em>(elvetve)</em></td>
+<td>2022-07-28 – 30</td>
+<td>Bence Orosz, Gyimesi Norbert, Cseh Viktor</td>
+</tr>
+<tr>
+<td>Syncerek átállása az új backendre</td>
+<td>2022-07 – 09</td>
+<td>marcsello, Bence Orosz, gombossb, Eck Balázs</td>
+</tr>
+<tr>
+<td>Sentry bevezetése</td>
+<td>2022-08 – 09</td>
+<td>Laszlo Rafael, Bence Orosz</td>
+</tr>
+<tr>
+<td><code>dns-advanced</code> UI rework</td>
+<td>2022-10 – 11</td>
+<td>Gelencser Ákos, Laszlo Rafael</td>
+</tr>
+<tr>
+<td>RabbitMQ élesben</td>
+<td>2022-10-18</td>
+<td>Laszlo Rafael</td>
+</tr>
+<tr>
+<td>Második workshop</td>
+<td>2022-12-13 – 19</td>
+<td>Tamas Kiss, Laszlo Rafael</td>
+</tr>
+<tr>
+<td><code>account-v2-service</code></td>
+<td>2023-01 – 2024-02</td>
+<td>Laszlo Rafael</td>
+</tr>
+<tr>
+<td>React-app UI/UX-csiszolás és MAC-formátum normalizálás</td>
+<td>2023-02-20 – 28</td>
+<td>gombossb</td>
+</tr>
+<tr>
+<td>mac-oui-service megalapítása</td>
+<td>2023-02-22 – 26</td>
+<td>Horváth Zoltán</td>
+</tr>
+<tr>
+<td>DNS host review oldal megújítása</td>
+<td>2023-02-25 – 26</td>
+<td>gabor</td>
+</tr>
+<tr>
+<td><code>b2b-app</code> admin-panel</td>
+<td>2023-08 – 2024-02</td>
+<td>Laszlo Rafael</td>
+</tr>
+<tr>
+<td>NAT-regisztráció / <code>sch-natgw-sync</code></td>
+<td>2024-07 – 2026-08</td>
+<td>Bence Orosz, Hunor Toth (első nekifutás), Wendl Lili, Pomucz Tamás (végleges)</td>
+</tr>
+<tr>
+<td>Csoportos és egyéni regisztráció a b2b-appban</td>
+<td>2024-07 – 10</td>
+<td>zyxtron</td>
+</tr>
+<tr>
+<td>Személyes hálózati regisztrációk (personalreglist)</td>
+<td>2024-07-27 – 29</td>
+<td>zsotroav</td>
+</tr>
+<tr>
+<td><code>schaccreg</code> — önkiszolgáló regisztráció</td>
+<td>2024-08 – 2026-08</td>
+<td>Tamas Kiss, Pomucz Tamás</td>
+</tr>
+<tr>
+<td><code>levlista-service</code></td>
+<td>2024-09 – 2026-09</td>
+<td>Spyro, Szenes Márton Miklós</td>
+</tr>
+<tr>
+<td>IPv6-cím automatikus generálása regisztrációhoz</td>
+<td>2024-09-04</td>
+<td>zyxtron</td>
+</tr>
+<tr>
+<td>DNS-rekordok kezelése a felületen</td>
+<td>2025-02-27</td>
+<td>László Mócsy</td>
+</tr>
+<tr>
+<td>DNS-zóna delegálás</td>
+<td>2025-06</td>
+<td>Muzsai László</td>
+</tr>
+<tr>
+<td>Enum-refaktor, egy nap alatt</td>
+<td>2025-08-01 – 02</td>
+<td>Abonyi Bence</td>
+</tr>
+<tr>
+<td>Hálózati troubleshoot guide</td>
+<td>2025-08-01 – 17</td>
+<td>zsotroav</td>
+</tr>
+<tr>
+<td>Sicc-kereső — DataGrid-alapú újraírás</td>
+<td>2025-08-02 – 17</td>
+<td>Tőrös András</td>
+</tr>
+<tr>
+<td>PEK-csoportok bevezetése</td>
+<td>2025-08</td>
+<td>Muzsai László</td>
+</tr>
+<tr>
+<td>reg-service modernizálása</td>
+<td>2025-10 – 11</td>
+<td>Illés</td>
+</tr>
+<tr>
+<td>Egyedi DNS-rekordok (<code>feat/custom_dns</code>)</td>
+<td>2026-01-04</td>
+<td>Pomucz Tamás, valkosch</td>
+</tr>
+<tr>
+<td>NAT-regisztráció renew-logika és hibajavítások</td>
+<td>2026-01 – 03</td>
+<td>Eliz</td>
+</tr>
+<tr>
+<td>NAT-táblázat felülete</td>
+<td>2026-01 – 02</td>
+<td>Tőrös András</td>
+</tr>
+<tr>
+<td>levlista-service adatbázis-átalakítás</td>
+<td>2026-03-05</td>
+<td>tamas722</td>
+</tr>
+<tr>
+<td><code>notification-service</code></td>
+<td>2026-03 – 09</td>
+<td>Szenes Márton Miklós, Spyro</td>
+</tr>
+</tbody>
+</table>
+<h3>Release-történet</h3>
+<p>A puszta commit-számokon túl a git tag-ek is mesélnek: 46 repóban összesen 992 valódi verziójelölés van 2019 és 2026 között — egy teljesen független adatforrás ugyanahhoz a történethez, és pontosan ugyanazt mondja.</p>
+<!-- @chart id=releases caption="Kiadott git tag-ek száma évente, mind a 46 tag-elt repóban összesítve" -->
+<table>
+<thead>
+<tr>
+<th>Év</th>
+<th>Kiadott tag-ek</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2019</td>
+<td>105</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>141</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>12</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>196</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>183</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>99</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>95</td>
+</tr>
+<tr>
+<td>2026*</td>
+<td>161</td>
+</tr>
+</tbody>
+</table>
+<p><em>(2026 részleges év)</em></p>
+<ol start="2019">
+<li>
+<p>augusztus 26-án Feri egyetlen „Prod CI&quot; nevű commit-tel egyszerre kapcsolta be az automata verziózást 11 service-en (ad-, adminview-, ap-, auth-, dns-, exchange-, fir-, ip-, mac-, sympa-service és a transient-server) — innen az azonos napon felbukkanó rengeteg <code>v0.1</code> tag. A leghosszabb életű, folyamatosan tag-elt repó a <code>dns-service</code>: hét éven át, <code>v0.1</code>-től (2019-08-26) egészen <code>1.15.5</code>-ig (2026-07-18) sosem állt meg. A <code>react-app</code> viszont a legaktívabb: 158 tag négy év alatt.</p>
+</li>
+<li>
+<p>július 31-én négy szolgáltatás (<code>react-app</code>, <code>reg-service</code>, <code>vlan-service</code>, <code>license-service</code>) mind ugyanazon a napon kapta meg az első <code>1.0.0</code> jelölését — méghozzá pontosan aznap, amikor a <code>vlan-service-ng</code> néven futó párhuzamos újraírási kísérletet elvetették, és az eredeti <code>vlan-service</code> kapott helyette friss, FastAPI-alapú átírást: a hackathon utáni fejlesztés aznap érett meg egyszerre kiadható állapotra. (Aznap, a saját <code>dns-service</code> commit-üzenetem szerint: „Why do I hate myself?&quot; — a release-nap sem ment feszültség nélkül.) A <code>vlan-service</code> <code>1.5.0</code>-s tagje pedig pontosan 2022. október 18-ára esik — ugyanarra a napra, amikor a RabbitMQ élesbe állt. Az <code>auth-service</code> <code>1.4.0-rc1</code> tagje szeptember 2-án, a Sentry-bevezetés záró napján készült.</p>
+</li>
+</ol>
+<p>2021-ben mindössze <strong>12 tag</strong> született a teljes rendszerben — ugyanaz a csend látszik itt is, amiről fentebb, a „lassú évek&quot; kapcsán volt szó, csak épp egy teljesen más adatforrásból megerősítve.</p>
+<p>Volt itt-ott egy kis emberi esetlegesség is: az <code>auth-service</code> <code>1.5.1-security-patch</code> tagje az egyetlen a 992 közül, aminek névvel jelzett oka is van, nem csak verziószáma; az <code>account-v2-service</code>-nél 2024 augusztusában egy elgépelt extra pont került a tag névbe (<code>1.3.0.-rc3</code>, <code>1.3.0.-rc4</code>) — két kiadáson át javítatlanul. És nem minden ág futott célba: a <code>helm-charts</code>-ban egy 2023 januári, <code>pls-work</code> nevű branch (rlacko egyetlen „fix&quot; üzenetű commitja) és a react-app-beli, önbevallottan félkész <code>netwatcher-integration</code> branch (2022 márciusa, Schulcz Ferenc: „Half-ready netwatcher integration with broken charts&quot;) a mai napig ott lóg mergeletlenül.</p>
+<!-- @hr -->
+<h3>Kié volt a staféta</h3>
+<p>Commitok évente közreműködőnként, 2013-tól — a hét legaktívabb ember névvel, a maradék 67 fő egy összesített sávban (lentebb mindenki névvel is szerepel). Jól látszik, ahogy adja tovább egyik a másiknak: <strong>Zolij → Márki-Zay Feri → én → Pomucz Tomi és Wendl Lili.</strong> Mindig akad, aki átveszi, mire az előző csúcsa elhalványul.</p>
+<!-- @chart id=generations legend=gen -->
+<p>És ugyanez összesítve, ki mennyit tett hozzá a rendszerhez összesen — mind a 37 ember névvel, aki elérte a 10 commitot, a maradék 37 fő (fejenként 10 alatt, összesen 131 commit) egy összesítő sorban (a „zsotroav” névre fut össze Török Zsombor néhány korábbi commitja is):</p>
+<!-- @chart id=leaderboard -->
+<p>Íme mind a 37 ember névvel, aki elérte a 10 commitot — a maradék 37 fő (fejenként 10 alatt) egy összesítő sorban (a „zsotroav” névre fut össze Török Zsombor néhány korábbi commitja is, innen a kerekebb szám):</p>
+<table>
+<thead>
+<tr>
+<th>Közreműködő</th>
+<th style="text-align:right">Összes commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Laszlo Rafael (én)</td>
+<td style="text-align:right">1242</td>
+</tr>
+<tr>
+<td>zolij</td>
+<td style="text-align:right">1235</td>
+</tr>
+<tr>
+<td>Márki-Zay Ferenc</td>
+<td style="text-align:right">1064</td>
+</tr>
+<tr>
+<td>Pomucz Tamás</td>
+<td style="text-align:right">477</td>
+</tr>
+<tr>
+<td>Wendl Lili</td>
+<td style="text-align:right">296</td>
+</tr>
+<tr>
+<td>Bence Orosz</td>
+<td style="text-align:right">255</td>
+</tr>
+<tr>
+<td>Tamas Kiss</td>
+<td style="text-align:right">247</td>
+</tr>
+<tr>
+<td>Spyro</td>
+<td style="text-align:right">150</td>
+</tr>
+<tr>
+<td>marcsello</td>
+<td style="text-align:right">143</td>
+</tr>
+<tr>
+<td>Gelencser Ákos</td>
+<td style="text-align:right">124</td>
+</tr>
+<tr>
+<td>zsotroav</td>
+<td style="text-align:right">103</td>
+</tr>
+<tr>
+<td>Szenes Márton Miklós</td>
+<td style="text-align:right">100</td>
+</tr>
+<tr>
+<td>Torma Kristóf</td>
+<td style="text-align:right">98</td>
+</tr>
+<tr>
+<td>gombossb</td>
+<td style="text-align:right">71</td>
+</tr>
+<tr>
+<td>Eliz</td>
+<td style="text-align:right">52</td>
+</tr>
+<tr>
+<td>Sanya</td>
+<td style="text-align:right">40</td>
+</tr>
+<tr>
+<td>Kalmár Balázs</td>
+<td style="text-align:right">39</td>
+</tr>
+<tr>
+<td>Abonyi Bence</td>
+<td style="text-align:right">36</td>
+</tr>
+<tr>
+<td>Muzsai László</td>
+<td style="text-align:right">34</td>
+</tr>
+<tr>
+<td>Horváth Zoltán</td>
+<td style="text-align:right">31</td>
+</tr>
+<tr>
+<td>Bodor Máté</td>
+<td style="text-align:right">29</td>
+</tr>
+<tr>
+<td>Agócs Dániel</td>
+<td style="text-align:right">26</td>
+</tr>
+<tr>
+<td>Tőrös András</td>
+<td style="text-align:right">21</td>
+</tr>
+<tr>
+<td>Gyimesi Norbert</td>
+<td style="text-align:right">21</td>
+</tr>
+<tr>
+<td>Csaba Zamolyi</td>
+<td style="text-align:right">18</td>
+</tr>
+<tr>
+<td>Benjamin Peter</td>
+<td style="text-align:right">18</td>
+</tr>
+<tr>
+<td>Hunor Toth</td>
+<td style="text-align:right">18</td>
+</tr>
+<tr>
+<td>zyxtron</td>
+<td style="text-align:right">16</td>
+</tr>
+<tr>
+<td>tothadam</td>
+<td style="text-align:right">15</td>
+</tr>
+<tr>
+<td>Adam Kovacs</td>
+<td style="text-align:right">14</td>
+</tr>
+<tr>
+<td>Madarász Bence</td>
+<td style="text-align:right">14</td>
+</tr>
+<tr>
+<td>Illés</td>
+<td style="text-align:right">13</td>
+</tr>
+<tr>
+<td>Cseh Viktor</td>
+<td style="text-align:right">13</td>
+</tr>
+<tr>
+<td>hunbalazs</td>
+<td style="text-align:right">12</td>
+</tr>
+<tr>
+<td>gyeben</td>
+<td style="text-align:right">10</td>
+</tr>
+<tr>
+<td>Dániel Bakai</td>
+<td style="text-align:right">10</td>
+</tr>
+<tr>
+<td><em>37 további ember (fejenként 10 commit alatt)</em></td>
+<td style="text-align:right">131</td>
+</tr>
+</tbody>
+</table>
+<p>A puszta commit-szám azt mondja meg, ki mennyit <em>dolgozott</em>. Nem mondja meg, mi lett a munkájából. Ezért soronként is végigmentem a teljes git-történelmen: minden valaha hozzáadott sornak pontosan három sorsa lehet, és ez a három mindig 100%-ot ad ki — <strong>aktív</strong> (ma is fut egy élő szolgáltatásban), <strong>eltűnt</strong> (valaki azóta felülírta vagy törölte — ez teljesen normális, ez a kód élete), és <strong>archivált</strong> (a sor technikailag megvan a git történelemben, de a szolgáltatás, amiben él, már nem üzemel). A legszemléletesebb eset Zolijé: az általa írt sorok közül, ami ma is megvan valahol, 99,9%-a a mára archivált <code>adminsch-old</code> monolitban ül — nem azért, mert rossz volt a kódja, hanem mert az egész, amit épített, azóta lecserélődött. Az első generáció alapjai formálisan lezárt fejezetek, még ha a rendszer, amit elindítottak, ma is él.</p>
+<!-- @loc-table -->
+<h2>Köszönet</h2>
+<p>Köszönet mindenkinek, aki valaha akár egyetlen sor kódot is hozzáadott ehhez a rendszerhez. Tényleg mindenkinek:</p>
+<!-- @thanks-wall -->
+<p>Abonyi Bence, Adam Kovacs, Adrián Robotka, Agócs Dániel, Anna Bajnok, arcter, Armin Zavada, Bakos Ádám, Bence Orosz, BenceGyurus, Bendegúz Gyönki, Benjamin Peter, benjoe, blint, Bodor Máté, Csaba Zamolyi, Cseh Viktor, Csókás Bence, d.bajnok, Dániel Bakai, Eck Balázs, Eckl Máté, Eliz, florafelalora, fodorpatrik2000, Fricska Kamilla, gabor, Gelencser Ákos, gombossb, gyeben, Gyimesi Norbert, György Kurucz, Horváth Zoltán, hunbalazs, Hunor Toth, Illés, Janega Zoltán (zolij), Kalmár Balázs, kozkbalzs23, László Mócsy, Madarász Bence, manko, Marcell Pünkösd, marcsello, Márki-Zay Ferenc, Muzsai László, peterbenjamin2000, Pomucz Tamás, radlaci97, Revolex, sadneutrino, Sanya, Sinkó Dániel, Spyro, Szenczy Balázs, Szenes Márton Miklós, Takács Gergő Tibor, Tamas Kiss, tamas722, Torma Kristóf, tothadam, tothgabor, Tőrös András, valkosch, Vikus, Várkonyi Kornél, Wendl Lili, zsotroav, zyxtron, Ónodi-Kiss Lili.</p>
+<hr>
+<p><em>Kérdések?</em></p>
+
+<script src="data.js"></script>
+<script>
+document.querySelectorAll('[data-stat]').forEach(el=>{
+  const v = META[el.dataset.stat];
+  if(v != null) el.textContent = v.toLocaleString('hu-HU');
+});
+</script>
+</body>
+</html>

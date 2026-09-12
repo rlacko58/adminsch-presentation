@@ -1,0 +1,11 @@
+{
+  "name": "adminsch-presentation",
+  "private": true,
+  "description": "Build tooling for tortenet.md — renders it to tortenet.html with data.js wired in live.",
+  "scripts": {
+    "build": "node build-tortenet.js"
+  },
+  "devDependencies": {
+    "markdown-it": "^14.1.0"
+  }
+}

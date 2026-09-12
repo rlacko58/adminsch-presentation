@@ -1,0 +1,2023 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdminSCH története</title>
+<style>
+  :root{
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
+    --other: #c3c2b7;
+    --accent: #2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+      --other: #52514e;
+      --accent: #3987e5;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    --other: #52514e;
+    --accent: #3987e5;
+  }
+
+  * { box-sizing: border-box; }
+  html, body{ margin:0; }
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior: auto; } }
+  body{
+    background: var(--page); color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.65;
+  }
+
+  #topbar{
+    position: sticky; top:0; z-index: 20; height:53px; box-sizing:border-box;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 22px; background: var(--page);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+  }
+  #topbar .brand{ font-weight:700; font-size:14px; letter-spacing:-0.01em; }
+  #topbar .right{ display:flex; align-items:center; gap:10px; }
+  #topbar a, #topbar button{
+    font-family:inherit; font-size:13px; text-decoration:none;
+    color: var(--text-secondary); border:1px solid var(--border);
+    background: var(--surface-1); padding: 7px 14px; border-radius: 20px;
+    display:inline-flex; align-items:center; gap:6px; transition: color .15s ease;
+    cursor:pointer; line-height:1;
+  }
+  #topbar a:hover, #topbar button:hover{ color: var(--text-primary); }
+  #topbar .toc-wrap{ position:relative; }
+  .toc-menu{
+    display:none; position:absolute; top:calc(100% + 8px); right:0; min-width:230px;
+    background: var(--surface-1); border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 10px 28px rgba(0,0,0,0.14); padding:6px; z-index:30;
+  }
+  .toc-menu.open{ display:block; }
+  #topbar .toc-menu a{
+    display:block; width:100%; box-sizing:border-box; text-align:left;
+    background:none; border:none; border-radius:6px; padding:9px 10px;
+    font-size:13px; color:var(--text-secondary);
+  }
+  #topbar .toc-menu a:hover{ background:var(--gridline); color:var(--text-primary); }
+
+  .page-shell{
+    max-width: 1500px; margin: 0 auto;
+    display: flex; align-items: flex-start; justify-content: center; gap: 32px;
+  }
+  article{
+    max-width: 960px; width:100%; padding: 48px 24px 100px;
+  }
+
+  .event-card{
+    border-left: 3px solid var(--border); padding: 2px 0 2px 18px; margin: 24px 0;
+    transition: border-color .3s ease;
+  }
+  .event-card.active{ border-left-color: var(--accent); }
+  .event-card h4{ margin: 4px 0 6px; font-size: 17px; letter-spacing:-0.01em; }
+  .event-meta{
+    display:flex; flex-wrap:wrap; gap: 4px 12px; font-size: 12px;
+    color: var(--text-muted); font-variant-numeric: tabular-nums;
+  }
+  .event-card p{ margin: 4px 0 0; font-size: 15px; color: var(--text-secondary); }
+
+  .kicker{
+    text-transform: uppercase; letter-spacing: .08em; font-size: 12px;
+    color: var(--text-muted); font-weight: 600; margin-bottom: 10px;
+  }
+  h1.title{ font-size: clamp(32px,5vw,48px); margin: 0 0 14px; letter-spacing:-0.01em; }
+  p.dek{ color: var(--text-secondary); font-size: 17px; margin: 0 0 44px; max-width: 62ch; }
+
+  h2{
+    font-size: clamp(22px,3vw,28px); margin: 56px 0 6px; letter-spacing:-0.01em;
+    scroll-margin-top: 70px;
+  }
+  h3{
+    font-size: 19px; margin: 34px 0 4px; color: var(--text-primary);
+    scroll-margin-top: 70px;
+  }
+  h2 + h3{ margin-top: 18px; }
+  hr{ border:none; border-top:1px solid var(--gridline); margin: 44px 0; }
+
+  p{ font-size: 17px; color: var(--text-primary); margin: 16px 0; }
+  p.stat-line{
+    background: var(--surface-1); border:1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 14px 18px; font-size: 15px; color: var(--text-secondary);
+  }
+  p.stat-line b{ color: var(--text-primary); }
+
+  a{ color: var(--accent); }
+
+  blockquote{
+    margin: 28px 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--accent);
+    font-size: 19px; font-weight: 600; letter-spacing:-0.01em; line-height:1.5;
+  }
+  blockquote p{ font-size: inherit; font-weight: inherit; margin: 6px 0; }
+  blockquote .attrib{
+    display:block; margin-top: 6px; font-size: 14px; font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .commit-list{
+    border:1px solid var(--border); border-radius:10px; margin:28px 0;
+    overflow:hidden; background:var(--surface-1);
+  }
+  .commit-row{
+    display:flex; align-items:center; gap:14px; padding:13px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .commit-row:last-child{ border-bottom:none; }
+  .commit-avatar{
+    flex:none; width:30px; height:30px; border-radius:50%;
+    background:var(--s7); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700;
+  }
+  .commit-body{ min-width:0; }
+  .commit-subject{ font-size:15px; font-weight:600; color:var(--text-primary); }
+  .commit-meta{ font-size:13px; color:var(--text-muted); margin-top:1px; }
+
+  code{
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em;
+    background: var(--surface-1); border:1px solid var(--border); border-radius:4px;
+    padding: 1px 5px;
+  }
+
+  img{
+    max-width: 100%; height:auto; display:block; margin: 26px auto; border-radius: 10px;
+    border: 1px solid var(--border); box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+    background:#fff;
+  }
+  figcaption, .img-cap{
+    text-align:center; font-size: 13px; color: var(--text-muted); margin-top: -14px; margin-bottom: 26px;
+  }
+  img.inline-small{
+    display:inline-block; max-width:140px; margin: 4px 8px -10px 8px; vertical-align:middle;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.18);
+  }
+  .year-anchor{ display:block; height:0; }
+  .img-row{
+    display:flex; gap:16px; flex-wrap:wrap; margin: 26px 0;
+  }
+  .img-row figure{ flex:1 1 260px; min-width:0; margin:0; }
+  .img-row img{ margin:0; width:100%; }
+  .img-row figcaption.img-cap{ margin-top:8px; margin-bottom:0; }
+  @media (max-width:640px){ .img-row{ flex-direction:column; } }
+
+  ul, ol{ padding-left: 22px; }
+  li{ font-size: 17px; margin: 8px 0; }
+  li > b:first-child{ color: var(--text-primary); }
+
+  table{
+    width:100%; border-collapse: collapse; margin: 24px 0; font-size: 15px;
+  }
+  th, td{ text-align:left; padding: 9px 12px; border-bottom: 1px solid var(--gridline); }
+  th{ color: var(--text-muted); font-weight:600; font-size: 13px; text-transform:uppercase; letter-spacing:.03em; }
+  td:last-child, th:last-child{ text-align:right; font-variant-numeric: tabular-nums; }
+  tr:last-child td{ font-style: italic; color: var(--text-secondary); }
+
+  .closing{ text-align:center; margin-top: 60px; color: var(--text-muted); font-size: 18px; font-style: italic; }
+
+  /* ---- thank-you wall ---- */
+  .thanks-wall{ display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 32px; }
+  .thanks-name{
+    padding: 6px 13px; border-radius: 999px; font-size: 14px;
+    background: var(--surface-1); border: 1px solid var(--border); color: var(--text-secondary);
+    transition: transform .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .thanks-name:hover{ transform: translateY(-2px); border-color: var(--accent); color: var(--text-primary); }
+  /* ensures Köszönet's own heading has room to reach the rail's activation line, so the rail can hide before the page truly ends */
+  .bottom-spacer{ height: 70vh; }
+
+  /* ---- interactive architecture diagrams (draw.io embeds) ---- */
+  .diagram-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .diagram-tab{
+    padding:8px 16px; border-radius:999px; font-size:13.5px; font-family:inherit; cursor:pointer;
+    background:var(--surface-1); border:1px solid var(--border); color:var(--text-secondary);
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .diagram-tab:hover{ border-color:var(--accent); color:var(--text-primary); }
+  .diagram-tab.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .diagram-panel{ display:none; }
+  .diagram-panel.active{ display:block; }
+  .diagram-caption{ text-align:center; color:var(--text-muted); font-size:13px; margin-top:8px; }
+
+  /* ---- stat tiles ---- */
+  .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:28px 0; }
+  .stat-tile{
+    background: var(--surface-1); border:1px solid var(--border); border-top:3px solid var(--accent);
+    border-radius:12px; padding:22px 12px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.05);
+  }
+  .stat-tile .value{ font-size:clamp(24px,4vw,36px); font-weight:800; letter-spacing:-0.02em; }
+  .stat-tile .label{ font-size:12.5px; color:var(--text-secondary); margin-top:5px; }
+  @media (max-width:560px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
+  .stat-row.cols-5{ grid-template-columns:repeat(5,1fr); }
+  @media (max-width:560px){ .stat-row.cols-5{ grid-template-columns:repeat(2,1fr); } }
+  .stat-tile.dead-tile{ border-top-color:var(--text-muted); }
+
+  /* ---- kódsorok / loc table ---- */
+  .table-scroll{ overflow-x:auto; }
+  .loc-table{ min-width:820px; }
+  .loc-table th{ cursor:pointer; user-select:none; }
+  .loc-table th:hover{ color:var(--text-primary); }
+  .loc-table th .arrow{ opacity:0; font-size:10px; margin-left:3px; }
+  .loc-table th.sorted .arrow{ opacity:1; color:var(--accent); }
+  .loc-table th:not(:first-child), .loc-table td:not(:first-child){ text-align:right; font-variant-numeric:tabular-nums; }
+  .loc-table tr:last-child td{ font-style:normal; color:inherit; }
+  .loc-table th:first-child, .loc-table td:first-child{
+    position: sticky; left: 0; z-index: 2; background: var(--surface-1);
+    border-right: 1px solid var(--border);
+  }
+  .loc-table tbody tr:hover td:first-child{ background: var(--gridline); }
+  .loc-table td.archived-col{ color:var(--text-secondary); }
+  .loc-table td.neg{ color:#c0392b; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .loc-table td.neg{ color:#e0685c; } }
+  :root[data-theme="dark"] .loc-table td.neg{ color:#e0685c; }
+  .loc-table .pctcell{ display:inline-flex; align-items:center; cursor:help; }
+  .loc-table .bar-track{ width:84px; height:8px; border-radius:3px; overflow:hidden; flex:none; display:flex; background:var(--gridline); }
+  .loc-table .bar-track .seg-active{ height:100%; background:var(--accent); }
+  .loc-table .bar-track .seg-gone{ height:100%; background:var(--gridline); }
+  .loc-table .bar-track .seg-archived{ height:100%; background:var(--other); }
+  .loc-table .na{ color:var(--text-muted); }
+  .loc-legend{ display:flex; flex-wrap:wrap; gap:6px 16px; margin:14px 0 0; font-size:12.5px; color:var(--text-secondary); }
+  .loc-legend-item{ display:flex; align-items:center; gap:6px; }
+  .loc-legend-swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+
+  /* ---- chart cards ---- */
+  .card{
+    background: var(--surface-1); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px 14px; margin:26px 0; overflow-x:auto;
+  }
+  .card > .chart-caption:first-child{ margin-top:0; }
+  .chart-caption{ font-size:13px; color:var(--text-muted); margin:10px 0 0; text-align:center; }
+  .legend{ display:flex; flex-wrap:wrap; gap:12px; margin:0 0 12px; }
+  #legend-timeline{ position:sticky; left:0; z-index:2; background:var(--surface-1); width:fit-content; padding-right:12px; }
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-secondary); }
+  .legend-swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+  svg text{ font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+
+  /* ---- repo-timeline: sticky name column while the bars scroll sideways ---- */
+  .timeline-scroll{ display:flex; }
+  .timeline-labels{
+    flex:none; width:220px;
+    position:sticky; left:0; z-index:2;
+    background:var(--surface-1); border-right:1px solid var(--border);
+  }
+  .tl-label{
+    font-size:10px; line-height:15px; text-align:right; padding-right:8px;
+    color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .tl-label.archived{ opacity:0.6; }
+  #chart-timeline{ flex:none; }
+  .axis-label{ fill: var(--text-muted); font-size: 13px; }
+  .bar-label{ fill: var(--text-secondary); font-size: 13px; }
+  .grid-line{ stroke: var(--gridline); stroke-width: 1; }
+  .base-line{ stroke: var(--baseline); stroke-width: 1; }
+  .hover-rect{ fill: transparent; }
+  .hover-rect:hover{ fill: var(--gridline); opacity:0.5; }
+
+  /* ---- tooltip ---- */
+  .tooltip{
+    position: fixed; pointer-events:none; z-index: 90;
+    background: var(--text-primary); color: var(--surface-1);
+    font-size: 13px; padding: 7px 10px; border-radius: 7px;
+    line-height:1.4; opacity: 0; transform: translateY(4px);
+    transition: opacity .1s ease, transform .1s ease;
+    max-width: 260px;
+  }
+  .tooltip.show{ opacity: 1; transform: translateY(0); }
+  .tooltip b{ font-weight:600; }
+
+  /* ---- left year rail: month-by-month commit histogram + individual event markers ----
+     Hidden is the resting state (opacity:0 right here, no class needed) — JS only ever
+     adds .mode-basic/.mode-full to reveal it once scrolled to the right section, it never
+     has to react and hide it again. */
+  #year-rail{
+    display:none;
+    position: sticky; top: 73px; flex-shrink:0;
+    width: 254px; height: calc(100vh - 93px);
+    padding: 14px 0;
+    opacity: 0; pointer-events: none;
+    transition: opacity .5s ease;
+  }
+  #rail-track{ position:relative; width:100%; height:100%; }
+
+  /* year axis: its own lane, so text never shares a row with a bar */
+  .rail-year-tick{
+    position:absolute; left:0; width:30px; transform:translateY(-50%);
+    font-size:10.5px; font-variant-numeric:tabular-nums; color:var(--text-muted);
+    pointer-events:none; transition:color .2s ease, font-weight .2s ease;
+  }
+  .rail-year-tick.active{ color:var(--text-primary); font-weight:700; }
+  .rail-year-gridline{
+    position:absolute; left:38px; right:26px; height:1px;
+    background:var(--gridline); opacity:0.6; pointer-events:none;
+  }
+
+  /* month histogram: one thin bar per month, stacked into a continuous sideways chart */
+  .rail-month-row{
+    position:absolute; left:38px; right:26px; height:7px; transform:translateY(-50%);
+    cursor:pointer;
+  }
+  .rail-month-row::before{
+    content:''; position:absolute; left:-8px; top:0; bottom:0; width:3px;
+    background:transparent; border-radius:2px; transition:background .15s ease;
+  }
+  .rail-month-row.active::before{ background:var(--accent); }
+  .rail-month-bar{
+    position:absolute; left:0; top:2px; height:3px; display:flex;
+    border-radius:1px; overflow:hidden; transition:filter .15s ease;
+  }
+  .rail-month-row.active .rail-month-bar, .rail-month-row:hover .rail-month-bar{
+    filter:brightness(1.15) saturate(1.2);
+  }
+
+  .rail-event-dot{
+    position:absolute; right:8px; width:6px; height:6px; margin-top:-3px; margin-right:-3px;
+    border-radius:50%; background:var(--baseline); cursor:pointer; z-index:2;
+    transition: width .15s ease, height .15s ease, background .15s ease, margin .15s ease;
+  }
+  .rail-event-dot:hover{ background:var(--text-secondary); }
+  .rail-event-dot.active{
+    width:11px; height:11px; margin-top:-5.5px; margin-right:-5.5px;
+    background:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .rail-event-label{
+    position:absolute; right:20px; transform:translateY(-50%);
+    font-size:11px; font-weight:700; color:var(--accent); background:var(--page);
+    padding:3px 8px; border-radius:6px; white-space:nowrap;
+    opacity:0; transition:opacity .2s ease; pointer-events:none; z-index:3;
+    box-shadow:0 2px 10px rgba(0,0,0,0.12);
+  }
+  .rail-event-label.show{ opacity:1; }
+
+  /* rail modes, driven by the active <section data-rail-mode>: hidden (Intro/Köszönet) →
+     basic, years only (Sztori/Architektúra) → full, commit histogram (Fejlesztések).
+     Rows/dots default to opacity:0 explicitly (not "1 unless basic says otherwise") — that
+     was the bug: falling back to an implicit default meant leaving full mode any way other
+     than through basic snapped them straight back to visible while the container was still
+     mid-fade-out. With an explicit 0 baseline, only .mode-full ever needs to say "show". */
+  #year-rail.mode-basic, #year-rail.mode-full{ opacity:1; pointer-events:auto; }
+  .rail-month-row, .rail-event-dot{
+    opacity:0; pointer-events:none;
+    transition: opacity .3s ease, width .15s ease, height .15s ease, background .15s ease, margin .15s ease;
+  }
+  #year-rail.mode-full .rail-month-row,
+  #year-rail.mode-full .rail-event-dot{ opacity:1; pointer-events:auto; }
+  #year-rail.mode-basic .rail-event-label{ opacity:0 !important; pointer-events:none; }
+
+  @media (min-width:1150px){
+    #year-rail{ display:block; }
+  }
+
+  article img:not(.inline-small){ cursor: zoom-in; }
+
+  #lightbox{
+    display:none; position:fixed; inset:0; z-index:200;
+    background: rgba(0,0,0,0.86);
+    align-items:center; justify-content:center; flex-direction:column;
+  }
+  #lightbox.open{ display:flex; }
+  #lightbox img{
+    display:block; max-width:88vw; max-height:78vh; margin:0;
+    border-radius:8px; box-shadow:none; border:none; background:none;
+    object-fit:contain;
+  }
+  #lightbox .lightbox-caption{
+    color:#f2f2f0; font-size:14px; text-align:center; max-width:80vw; margin-top:16px;
+  }
+  #lightbox .lightbox-counter{
+    color:#8a8a86; font-size:12px; margin-top:6px; font-variant-numeric:tabular-nums;
+  }
+  #lightbox .lightbox-close{
+    position:absolute; top:20px; right:26px; color:#f2f2f0; font-size:30px; line-height:1;
+    background:none; border:none; cursor:pointer; padding:8px;
+  }
+  #lightbox .lightbox-arrow{
+    position:absolute; top:50%; transform:translateY(-50%); color:#f2f2f0; font-size:36px;
+    background:none; border:none; cursor:pointer; padding:12px 18px; opacity:0.75;
+  }
+  #lightbox .lightbox-arrow:hover{ opacity:1; }
+  #lightbox .lightbox-arrow.prev{ left:8px; }
+  #lightbox .lightbox-arrow.next{ right:8px; }
+  @media (max-width:640px){
+    #lightbox .lightbox-arrow{ font-size:26px; padding:10px; }
+  }
+
+  /* ---- always-visible jump-to-section rail: sits beside the article like #year-rail (wide screens only; narrower falls back to the topbar menu) ---- */
+  #toc-rail{
+    display:none; position:sticky; top:73px; flex-shrink:0; width:190px;
+    padding:14px 0 0;
+  }
+  #toc-rail a{
+    display:block; padding:4px 0; font-size:12.5px; line-height:1.4;
+    color:var(--text-muted); text-decoration:none;
+  }
+  #toc-rail a:hover{ color:var(--text-primary); }
+  #toc-rail a.active{ color:var(--text-primary); font-weight:700; }
+  @media (min-width: 1500px){
+    #toc-rail{ display:block; }
+    #topbar .toc-wrap{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="brand">AdminSCH Története</span>
+  <div class="right">
+    <div class="toc-wrap">
+      <button id="tocBtn" aria-haspopup="true" aria-expanded="false">Tartalom ▾</button>
+      <div id="tocMenu" class="toc-menu" role="menu">
+        <a href="#sec-about" data-target="sec-about" role="menuitem">Rólam</a>
+        <a href="#sec-intro" data-target="sec-intro" role="menuitem">Intro</a>
+        <a href="#sec-story" data-target="sec-story" role="menuitem">Sztori és szakma</a>
+        <a href="#sec-architecture" data-target="sec-architecture" role="menuitem">Architektúra</a>
+        <a href="#sec-dev" data-target="sec-dev" role="menuitem">Fejlesztések és statisztikák</a>
+        <a href="#sec-thanks" data-target="sec-thanks" role="menuitem">Köszönet</a>
+      </div>
+    </div>
+    <button id="themeBtn" title="Sötét / világos mód">🌙</button>
+    <a href="presentation.html">Diavetítés megnyitása ▶</a>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div class="page-shell">
+<div id="year-rail"><div id="rail-track"></div></div>
+
+<article>
+  <div class="kicker">KSZK50 Prezentáció — teljes történet</div>
+  <h1 class="title">AdminSCH története</h1>
+  <p class="dek">Ez az oldal részletesebben kifejti az egyes elemeit a KSZK 50-es AdminSCH Története című előadásnak. Mikor az alapanyagokat gyűjtöttem, hamar rájöttem, hogy
+egy 25 perces előadás nem lesz elég hogy mindent kiírjak. És ezért is alkotódott ez meg. Az oldalon a számokat mind a jelenlegi <span data-stat="totalRepos">74</span> elérhető
+repo-ból generáltam ki. Ez összesen<span data-stat="totalContributors">74</span> ember munkáját és <span data-stat="totalCommits">6245</span> commit-ot jelent 2013-tól napjainkig. (2026 Szeptember 9)</p>
+
+  <hr>
+
+<section data-rail-mode="hidden" id="sec-about">
+
+<h2>Rólam</h2>
+
+<p>Akkor magamról egy kicsit. Rafael Lászlónak, Lackónak hívnak. Én még 2018-ban kezdtem a KSZK-ban, majd az idő során sorban vettem fel a különböző kalapokat. Voltam a virtualizációs klaszterünk (VMWare) rendszergazdája, Devteam körvezető, a KSZK képzés többszöri főmentora, a konténerizációs (k8s) klaszterünk rendszergazdája és még egy rakat dolog. Aztán az utóbbi majdnem négy évben (2022 Augusztustól 2026 Május végéig) Dániában éltem. Először egy Google Cloud konzultációs pozícióban (<a href="https://www.devoteam.com/">Devoteam</a>) dolgoztam. Majd 8 hónap után váltottam és onnantól három éven át egy sporttal foglalkozó cég infrastruktúráját és rendszereit kalapáltam (<a href="https://www.trackman.com/">Trackman</a>). Három hónapja pedig újra itthon lakom és azóta a <a href="https://bitrise.io/">Bitrise</a> nevű cégnél dolgozom.</p>
+
+<p>Úgy ahogy sokan mások, én is a Schönherzbe beköltözve kezdtem a BME-n még 2018-ban. És hát fogalmam se volt a KSZK rendszereiről. Regisztráltam a Schacc-omat, bevittem a holmimat a szobámba, egyszer lementem UTP kábelt összerakni a KSZK-sokkal és ennyi volt az interakcióm. Talán egyszer panaszkodtam ticketben, hogy mennyire zavaró, hogy két eszközzel nem lehet ugyanazt az IP-t használni. De ennyi.</p>
+
+<p>Aztán valahol tavasszal beszippantott a KSZK képzése és végül a nyár folyamán, immáron újoncként kezdtem el foglalkozni az AdminSCH projekttel. Bevallom, ekkor még nagyon alacsony volt a tudásom. Soha nem kódoltam hasonló weboldalt. De volt egy kis ismeretem és ez elég volt, hogy 2019 nyarán beüljek egy projektgyűlésre. Itt fogadott minket Kiss Tomi, Marcselló és Márki-zay Feri egy üres táblával. Mit ne mondjak, az előadásunk végére rendesen telerajzolták nekünk a táblát.</p>
+
+<div class="img-row">
+  <figure><img src="assets/adminsch-draft-1.png" alt="adminsch vázlat 1" width="1736" height="1618"><figcaption class="img-cap">adminsch vázlat 1</figcaption></figure>
+  <figure><img src="assets/adminsch-draft-2.png" alt="adminsch vázlat 2" width="1486" height="1816"><figcaption class="img-cap">adminsch vázlat 2</figcaption></figure>
+</div>
+
+</section>
+
+<section data-rail-mode="hidden" id="sec-intro">
+
+<h2>Intro</h2>
+
+<p>Először is mi az a KSZK? Hát talán a <a href="https://kszk.bme.hu/">weboldalunkon</a> megtalálható leírás írja le a legjobban:</p>
+
+<blockquote>
+<p>A Kollégiumi Számítástechnikai Kör a kar egyik első - jelenleg is aktív - öntevékeny csoportosulása, mely 1976-ban került megalapításra. Tagjaink az informatika különböző területei iránt kiemelten érdeklődő öntevékeny egyetemista hallgatók, akik tanulmányaikon túl, szabaidejükben fejlesztik magukat és rendszereinket, megkönnyítve ezzel a kollégisták, valamint a kar hallgatóinak hétköznapjait. Aktív tagjaink az iparban alkalmazott naprakész tudásra tesznek szert itt, kísérleteznek saját ötleteikkel és jó kapcsolatokat építenek ki ebben a jó hangulatú, alkotó kedvű közösségben.
+A KSZK tevékenysége két nagy területre bontható: az üzemeltetésre és a fejlesztésre. Előbbi esetén hálózattervezéssel, felügyelettel, monitorozással és különböző típusú szerverszolgáltatások üzemeltetésével foglalkozunk. Utóbbi esetén pedig a web-, mobil- és szoftverfejlesztés jön szóba, valamint tevékenységeink során az IT security-vel is behatóan foglalkozunk.</p>
+</blockquote>
+
+<p>És mikor ezt olvasom az első gondolatom pont az, hogy mégis hogy tudja ezt egy kis csoport menedzselni? Hát igen, úgy, hogy mindent amit lehet megpróbálunk leautomatizálni. És pont itt jön be az AdminSCH.</p>
+
+<p>Te hogyan oldanád meg körülbelül 500 új diák regisztrációját, annak elbírálását és email fiók generálását? Milyen kihívásokra számítanál? Hogyan tennéd az egészet biztonságossá?</p>
+
+<p>Aztán hogyan oldanád meg, hogy ezek az új felhasználók tudjanak internetezni a koli falain belül? Akár Wifin, akár a kábelen keresztül. Hogyan társítanál egy IP címet egy adott eszközhöz úgy, hogy azt a koliban lakók maguk meg tudják oldani? Hogyan oldanád meg, hogy akár 2-3 eszköz kényelmesen ellegyen egymás mellett a hálózaton?</p>
+
+<p>Honnan tudom mégis, hogy egy diák amúgy a koliban lakik? Na és ha már internetet biztosítunk, hogyan vonjuk meg ezt valakitől, ha az internet szabályzattal szemben kihágást követ el?</p>
+
+<p>És igen, az elmúlt 13 évben pont ezekre a kihívásokra és még sok másra adtunk választ.</p>
+
+<p>És erről a történetről szeretnék beszélni.</p>
+
+<div class="stat-row" id="stat-row"></div>
+
+<hr>
+
+<img src="assets/kszk-2025.png" alt="KSZK 2025" width="3466" height="1270">
+  <p class="img-cap">KSZK 2025</p>
+
+</section>
+
+<section data-rail-mode="basic" id="sec-story">
+
+<h2>Sztori és szakma</h2>
+
+<h3>Ugorjunk vissza — az idővonal</h3>
+
+<p>Mielőtt még nagyon beleugranánk a történetbe, nézzünk meg hol is helyezkedik el a fenti <span data-stat="totalRepos">74</span> repó. Hogy legyen apróbb képünk mibe is tekintünk bele. Itt láthatjuk az első commit-tól az utolsóig — indulás szerint rendezve, kategória szerint színezve. A szürke sávok már az archiváltak.</p>
+
+<div class="card">
+    <div id="legend-timeline" class="legend"></div>
+    <div class="timeline-scroll"><div id="chart-timeline-labels"></div><div id="chart-timeline"></div></div>
+  </div>
+
+<h3 data-year="2013.1">2013 — amit örököltem</h3>
+
+<span class="year-anchor" data-year="2013.1"></span>
+
+<p>Az, hogy a KSZK-sok feleljenek a hálózatért, már nagyon régen elindult. Akkor még egészen minimálisan volt automatizálva. Olyan legendákat is hallottam, hogy egy ponton fizikai papír formot kellett a beköltözőknek kitölteni, hogy kapjanak internetet.</p>
+
+<p>A KSZK-nak már a 2000-es évek eleje óta volt egy admin-eszköze, „Admintools&quot; néven — jóval a git előtt, arról nincs is commit-történelem, csak egy régi KSZK-s Youtube-videón látható még akcióban: <a href="https://youtu.be/uL8Mxj5aKm8?si=A2iu80lZ_b6GmINH&amp;t=268">youtu.be/uL8Mxj5aKm8?t=268</a>.</p>
+
+<img src="assets/admintools.png" alt="Az Admintools felülete a 2000-es években" width="1250" height="658">
+  <p class="img-cap">Az Admintools felülete a 2000-es években</p>
+
+<span class="year-anchor" data-year="2010.1"></span>
+
+<p>Ezt követően aztán a 2010-es években már AdminSCH-ként referálhattunk rá. Arról nincs infóm hogy mi is volt a projekt neve, hol van giten vagy mit lehet megtalálni róla. De találtam egy <a href="https://kszk.bme.hu/articles/haloreg-2012-osz/#ett%C5%91l-a-f%C3%A9l%C3%A9vt%C5%91l-a-h%C3%A1l%C3%B3zatregisztr%C3%A1ci%C3%B3-menete-jelent%C5%91sen-megv%C3%A1ltozik-%C3%BAj-online-fel%C3%BCleten-ker%C3%BCl-lebonyol%C3%ADt%C3%A1sra">blogposztot 2012 Októberéből</a> ahol már lehetséges volt a hálózati hozzájárulás befizetése.</p>
+
+<span class="year-anchor" data-year="2013.2"></span>
+
+<p>Egy biztos. Zolij <strong>2013. február 11-én</strong> fogta a teljes eddigi projektet, bemásolta egy git repo-ba, elcommitolta, majd továbbfejlesztette rengeteg funkcióval. Ő egykezüleg továbbvitte a projektet és én innentől beszélnék “AdminSCH”-ról, innentől van git története is. Szóval ha valaki kimaradt a commit history-ból vagy a statisztikákból, bátran dobja át az egykori git repo-t, már ha volt és felfrissítem az adatokat.</p>
+
+<img src="assets/adminsch-old-error.png" alt="Adminsch PHP" width="1204" height="905">
+  <p class="img-cap">Adminsch PHP</p>
+
+<p>Zolij Adminsch-jának hívtuk, hiszen ő volt az, aki legfőbb emberként összerakta a fontos funkciókat. Ez egyébként egy mellékes projektje volt az egyetemi dolgai mellett, ugyanis ekkoriban írta az Authsch-t is szakdolgozatként. Nem csak írta — 2016 elejére be is fejezte: onnantól az Authsch adta a tagság-adatokat, ez lett az AdminSCH tényleges identitás-forrása. Kb. 1200 az 1369 commitból az <code>adminsch-old</code>-ban tőle van — <strong>évekig gyakorlatilag egyedül vitte</strong>. 1235 commit, 2013-tól 2018-ig, néhány kisebb megjelenéssel még 2019-ben is — sőt utoljára még 2021 novemberében is jóváhagyott egy pull requestet. Ez pontosan ugyanabban a nagyságrendben van, mint amennyit később Márki-Zay Feri (1064) vagy én magam (1249) tettünk bele a rendszerbe.</p>
+
+<span class="year-anchor" data-year="2013.3"></span>
+
+<p>Az első egy hónapja sokat elárul a régi Adminsch-nak: 2013. február 21. és március 10. között lerakta a teljes alapot — díjcsomagok az SQL-ből, színes beléptetők, szobaszám a FIR-ből, MAC-cím a hálós adatbázisból. Ugyanez a szobaszám–MAC–FIR hármas köszön vissza a mai Fir-service-ben is egyébként.</p>
+
+<p>És igazából ezzel az oldallal először nem is volt baj. De aztán hamar kihullottak a csontvázak, és évekre előre rémálmot okozott többeknek a KSZK-ban. Viszont kiemelném, hogy az akkori ígéretét igenis beváltotta a rendszer, és elképesztően sok ötletet, megoldást emeltünk később át.</p>
+
+<h3 data-year="2015.2">2015–2019 — az újraírási kísérletek</h3>
+
+<span class="year-anchor" data-year="2015.1"></span>
+
+<p>Már 2015-ben, vagy még előbb elindult az igény, hogy átstrukturálják és újraírják. Kétszer meg is próbálták Zolij vezetése alatt — sikertelenül. Na de miért volt erre szükség?</p>
+
+<p>Hát igazából mint minden újraíráskor, itt se volt már senki, aki tényleg átlátja, tudja fejleszteni és ráadásnak a kód se segített a helyzeten. Senki nem mert, és nem is akart hozzányúlni — meg lehet, az emberek úgy érezték, hogy tudnak jobbat összerakni.</p>
+
+<span class="year-anchor" data-year="2019.1"></span>
+
+<p>Aztán egy napon jött a hír az egyetemtől: 2019-ben szeretnék, ha a fizetős rendszer beüzemelődne újra hálóregisztrációhoz. Igen már volt előtte, de itt valami változást kellett behozni. És hát a srácok sietve összedobtak egy új verziót. Úgy, hogy nem igazán értették a dolgokat — többen még akkor sose kódoltak ilyen mélyen PHP-ban, és sok megoldás lábon lövés volt inkább.</p>
+
+<p>Csak hogy éreztessem, a commit history így néz ki ebből az időből.</p>
+
+<span class="year-anchor" data-year="2019.25"></span>
+
+<div class="commit-list">
+    <div class="commit-row">
+      <div class="commit-avatar">MB</div>
+      <div class="commit-body">
+        <div class="commit-subject">price on networkRegistration.php form final5</div>
+        <div class="commit-meta">Madarász Bence · 2019. április 4.</div>
+      </div>
+    </div>
+    <div class="commit-row">
+      <div class="commit-avatar">MB</div>
+      <div class="commit-body">
+        <div class="commit-subject">price on networkRegistration.php form final4</div>
+        <div class="commit-meta">Madarász Bence · 2019. április 4.</div>
+      </div>
+    </div>
+    <div class="commit-row">
+      <div class="commit-avatar">MB</div>
+      <div class="commit-body">
+        <div class="commit-subject">price on networkRegistration.php form final3</div>
+        <div class="commit-meta">Madarász Bence · 2019. április 4.</div>
+      </div>
+    </div>
+    <div class="commit-row">
+      <div class="commit-avatar">MB</div>
+      <div class="commit-body">
+        <div class="commit-subject">Merge remote-tracking branch 'origin/bmejegy' into bmejegy</div>
+        <div class="commit-meta">Madarász Bence · 2019. április 4.</div>
+      </div>
+    </div>
+    <div class="commit-row">
+      <div class="commit-avatar">MB</div>
+      <div class="commit-body">
+        <div class="commit-subject">price on networkRegistration.php form final2</div>
+        <div class="commit-meta">Madarász Bence · 2019. április 4.</div>
+      </div>
+    </div>
+  </div>
+
+<p>Egyszerűen lehetetlen volt a dolgokat jól tesztelni, folyton nyelvi hibákba futottunk és a kód struktúrája is nehezen átlátható volt. De nem is lehetett csak úgy eltörni, mert akkor megáll minden a koliban. 🔥 De így tényleg minden, semmi modularitás. És hát mikor találnak az emberek hibákat? Hát amikor legjobban kell. És mikor a legrosszabb ha eltöri valaki miközben próbálna valamit javítani? Hát igen, akkor mikor az embereknek kell…</p>
+
+<p>De igazából én is csak rémtörténeteit hallottam ennek az időszaknak. Egy biztos, hogy valamit változtatni kellett és a srácok túl voltak terhelve.</p>
+
+<h3 data-year="2019.6">És akkor kanyarodjunk vissza</h3>
+
+<span class="year-anchor" data-year="2018.9"></span>
+
+<p>Mire én már megérkeztem, addigra egy egészen menő architektúrával drukkolt elő a csapat, és kellemes átállási tervet is készítettek. Igen, azért, ha már harmadjára próbál valamit újraírni egy csapat ember, akkor csak felkészültebbek. Persze nem volt tökéletes, de letette a mainak az alapjait. Vizsgáljuk is meg nagy vonalakban.</p>
+
+<p>Ti hogyan szerveznétek át egy hatalmas rendszert úgy, hogy akár több generációnyi KSZK-s is tudja később fejleszteni, anélkül hogy átlátná az egészet vagy mindent újra kellene írnia? Hát, sok megoldás létezik, de mi a mikroszolgáltatásokra tettük le a voksunkat. És itt kiemelném Márki-zay Ferit, ugyanis nagy munkája volt ennek a megvalósításában. Ő rakta le a mikroszolgáltatás-alapú architektúra konkrét. Méghozzá így nézett ki az első iterációja:</p>
+
+<img src="assets/arch-v1.png" alt="Az első iteráció architektúra diagramja: Legacy Admin.SCH és az új Admin.SCH Kubernetesen" width="1030" height="760">
+  <p class="img-cap">Az első iteráció architektúra diagramja: Legacy Admin.SCH és az új Admin.SCH Kubernetesen</p>
+
+<p>Ott bal oldalt volt egy nagy virtuális gépünk, amin futott a Legacy AdminSCH és egyébként ugyanitt ment a fenti zöld Apache proxy is. Ez a gép tele volt cronjobokkal amik PHP modulokat hívtak (például schacc regisztrációhoz), innen jöttek a levelek, ez hívott be igazából mindenhova. Végtelen olyan dolog, amit csak később fedeztünk fel igazán. Mikor ott hagytam a projektet, még ez a VM mindig megvolt mint mini proxy, mert az IP címe egyes helyekre benne volt a tűzfal szabályokban. :)</p>
+
+<p>De úgy képzeljétek el, hogy például évi háromszor valakinek be kellett lépnie erre a gépre csak azért, hogy átírjon egy számot egy elrejtett fájlban, amivel megtudta mondani a weboldalnak, hogy éppen melyik félévben vagyunk. Sőt talán még az adatbázisban is kellett frissíteni különféle dátumokat, hogy jók legyenek a regisztrációs időszakok. :)</p>
+
+<span class="year-anchor" data-year="2019.9"></span>
+
+<p>Aztán ott jobb oldalt volt az érdemi része a dolgoknak. Méghozzá amin mi dolgoztunk. Lényegében írtunk egy Python alapú átmeneti frontendet, ami egy az egyben ugyanúgy nézett ki mint a régi AdminSCH. Csak a funkcionalitást kiszervezte magából más service-ekbe. Tehát ha valaki lekérte a levelező lista tagságait akkor nem ez a python app kérte le közvetlen, hanem volt egy másik microservice amibe áthívott. Úgymond szimulálva amit egy frontend csinálna majd. És ez a logika mentén írtunk meg mindent.
+Ez azért kellett hogy ugyanazt az élményt tudja megadni az oldal mint az egykori php megoldás.</p>
+
+<p>Mire megérkeztem pont az első átállás folyt az új rendszerre és 2019 szeptemberére már aktívan ment a fenti megoldás. Ekkoriban sok frontend munkát kaptam Feritől. Aztán fokozatosan betanultam és egyre több munkát öltem a projektbe.
+Egy cikket is írtunk a weboldalunkra erről: <a href="https://kszk.bme.hu/articles/mi-az-a-microservice-ujrairtuk-az-admin-sch-t">kszk.bme.hu/articles/mi-az-a-microservice-ujrairtuk-az-admin-sch-t</a></p>
+
+<p>Feri ekkoriban gyakorlatilag mentorom volt a projektben — egyik fő hajtóereje annak, hogy egyáltalán bele mertem vágni. Állati sok hülye kérdést tettem fel neki, az biztos, de sosem éreztette.</p>
+
+<h3 data-year="2020.2">2020–2021 — A projekt lassú halála</h3>
+
+<p>Na de nem volt kész egyáltalán. Nagyon sok funkció bent ragadt a legacy megoldásban és sok nyitott kérdés maradt.</p>
+
+<span class="year-anchor" data-year="2020.2"></span>
+
+<p>2020 elején Feri aktívan dolgozott tovább a projekten. Ekkor rakta le szinte egyedül a reg-service alapjait, és — ami talán még fontosabb — a helm-charts/ci-templates devops-alapokat amit aztán később kibővítettem sok extrával. Ekkoriban továbbá Marcselló tökéletesítette mindhárom hálózati szinkronizáló szolgáltatásunk (DNS, RADIUS, DHCP). Kicsit hajtották magukat a srácok, rengeteg commitot tettek le ekkoriban többen is csak hogy minden rendben fusson.</p>
+
+<p>Aztán 2020 Márciusa elérkezett, és a Covid fokozatosan megölte a projektet. Hirtelen mindenkinek átalakultak a prioritásai, a Schönherz koli egy káosz volt, többé nem kellett regisztrálni, nem kellett fizetni regért és sok speciális esetet kellett ellátni. És ez 2021 végéig így is maradt. Csak egy-két aktív fejlesztés volt már és úgy tünt hogy a projekt lassan csődbe fut.</p>
+
+<p>Egyre gyakoribb kieséseink is voltak az infrastruktúra miatt, sok dolgot még mindig csak adatbázis-hívásokkal lehetett megoldani. De komolyan, azzal hogy “segédnetadmin”-ná váltál a KSZK-ban, kaptál egy hozzáférést a hálós adatbázishoz, ahol egyes mezőket tudtál átbillenteni a felhasználóknak. Egészen kellemetlen élmény volt és sok sebből vérzett. Ja és ha rossz parancsot adtál ki, akkor mindent is törölhettél könnyedén</p>
+
+<p class="stat-line">A commitszám ezt a kettősséget mutatja is — 2020-ban 727 commit, majd 2021-ben mindössze 92. Íme az egész 13 év, évenként:</p>
+
+<div class="card">
+    <div id="chart-yearly"></div>
+  </div>
+
+<p>Új repók évről évre. Legalábbis amiket megtaláltam:</p>
+
+<div class="card">
+    <div id="chart-repos"></div>
+  </div>
+
+<h3 data-year="2021.3">2021 — Akkor vége?</h3>
+
+<p>Lehet, hogy az AdminSCH projekt nem kapott fókuszt, de körülötte sorban javítottunk meg mindent. A hálózat megbízhatóbbá vált, a szervereinket átalakítottuk, új hardvereket szereztünk, a virtualizációnk jobbá vált, a Kubernetes klaszterünket megjavítottuk (később szakdolgozat témámmá is vált) és igazából egy nagyon prémium Devops Suite™ -et alakítottunk ki. Szimplán minden más volt előtérben.</p>
+
+<p>2021-re már csak páran maradtunk. Még elvétve aktív voltam, néha commitoltam egy-egy-et az AdminSCH-ba és tartottam a kapcsolatot Ferivel. Aztán 2021 végén meg is bízott vele, hogy segítsek összerakni valami Frontend megoldást. Rajta is látszott hogy már le akarta zárni. Ekkoriban neki is álltam. Elkezdtem a különböző dolgok tesztelését, rengeteg kódot írtam és kihasználtam a vizsgaszünet adta extra időt januárban — és meg is találtam a szerintem jó irányt.</p>
+
+<span class="year-anchor" data-year="2022.3"></span>
+
+<p>De nem csak ez történt, ugyanis ekkor jött az ötlet Marcsellótól és Adriántól, hogy szervezzünk egy <strong>KSZK hackathon</strong>t. Hozzuk össze az embereket egy napnyi kódolásra. És úgy döntöttünk, hogy AdminSCH lesz a téma. Megkapta az <strong>AdminSCH::Code</strong> nevet. Méghozzá 2022 Február 5-étől másnap este 6-ig tartott volna az esemény, de elmaradt. De aztán végül sikerült leszervezni Március 19-ére. És ekkor raktam össze Ferivel közösen a DNS Service-t és még pár apróságot. Meglepően hatékonyak voltunk, viszont éreztük a nehézségeket.
+Még mindig nem lehetett teljesen függetlenül dolgozni és nagyon kevés belső ismerete volt az embereknek. Ekkor szembesültem vele, hogy szükségünk van egy jó frontendre. Ha ez megvan, akkor innentől többé nem lesz egy központi AdminSCH kód (transient server) amit mindenkinek kötelező szerkesztenie, hanem teljesen függetlenül kódolhatunk majd. Sőt, ha sikerül átlátnom mindent, akkor még azzal is tudok segíteni hogy jól szétosszam a teendőket és az emberek ne fussanak egymás munkájába.</p>
+
+<p>Erre az alkalomra a Spot-ot is elhívtuk, hogy megörökítse a jövő számára: <a href="https://spot.sch.bme.hu/photo/2022/20220319_adminsch_code/">https://spot.sch.bme.hu/photo/2022/20220319_adminsch_code/</a></p>
+
+<img src="assets/adminsch_code_1.png" alt="AdminSCH::Code Vol. 1" width="2754" height="1250">
+  <p class="img-cap">AdminSCH::Code Vol. 1</p>
+
+<p>És ez az egész Hackathon egy hatalmas motivációt adott nekem a projektre. De hogyne adna, hiszen évek óta dolgoztam a többiekkel közösen AdminSCH körül mindenen és most láttam valamit ami minden eddigi munkánkat összefogja és elérhetővé teszi a Schönherz összes lakója számára. Végre nem az lesz a képe mindenkinek hogy mennyire használhatatlan és kidobott effort. Úgy éreztem, hogy nagyon közel vagyunk ahhoz, amit annó megálmodtunk. Innentől elkezdtem jobban beleásni magam, kipróbáltam dolgokat és összeraktam a React app kezdeti verzióját. Feri pedig a háttérből segített a backend service-ek átírásában, igazán JWT ready-vé tételével.</p>
+
+<h3 data-year="2022.48">2022. június 25. — AdminSCH Code</h3>
+
+<span class="year-anchor" data-year="2022.6"></span>
+
+<p>Ekkoriban közben főmentor is voltam, és elárulom, hogy a képzés után nagyon beakartam mindenkit vonni. Az egész képzést úgy építettük fel, hogy a végén legyen egy alap rálátásuk. A képzést lezártuk a táborral, és meghírdettük Június 25-re az AdminSCH::Code-ot a Földszinti nagyterembe.</p>
+
+<img src="assets/adminsch_code_2.png" alt="AdminSCH::Code Vol. 2" width="2750" height="1322">
+  <p class="img-cap">AdminSCH::Code Vol. 2</p>
+
+<img src="assets/adminsch_code_2_fun.png" alt="Kacsák!" width="2048" height="1365">
+  <p class="img-cap">Kacsák!</p>
+
+<p>Többen is tartottunk aznap egy előadást és elindult a fejlesztés. <em>(Fotók: <a href="https://spot.sch.bme.hu/photo/2022/20220625_adminsch_code/">spot.sch.bme.hu/photo/2022/20220625_adminsch_code</a>)</em></p>
+
+<p>Mondhatni, jobb motiváció nincs is arra, mint igent mondani egy ilyenre, majd pedig hónapokon át az összes szabadidőd elégetni. De végül sikerült mindent időben előkészíteni, mindenki megjelent, az öregek biztosították a végtelen alkoholt és energia italt. És ekkor ott végre láttuk hol a vége, mit kell még lefejleszteni és megszülettek az első igazi diagrammok, prezentációk.</p>
+
+<p>Ha megnézzük, ki mit épített azon a hétvégén. Gelencser Ákos (gelencser09) vitte a React-frontend-et (jogosultságok, navigáció, a teljes regisztrációs folyamat), Bence Orosz (woranhun) feltárta a regisztrációs folyamatot és ledokumentálta a jövő számára, pár Kotlinos nekifutása is volt. Pünkösd Marcell (Marcselló) egymaga megírta a workflow-service-t — az első commit-üzenete „Initial commit (it really is)“, a többi pedig arról tanúskodik, hogy tényleg sárkányokkal küzdött közben („Fought dragons”, majd „Cleaned up dead dragon bodies&quot;). Horváth Zoli (Zoleee) pedig újraírta az email-service-t. Feri közben mélyen benne maradt a háttérben: a JWT-t és a license-service-t kötötte be az auth-service-be, és márciustól szeptemberig ő vitte tovább a backend gerincét, nem csak azon a hétvégén.</p>
+
+<p>A RabbitMQ-s hálózati automatizálás két lépésben állt össze: a reg-service már június 26-án, a hackathon hajrájában megkapta Feritől a RabbitMQ-integrációt, a vlan-service pedig csak október 18-án zárkózott fel hozzá — onnantól működött élesben a teljes lánc, amit fentebb leírtam.</p>
+
+<p>A hackathon utáni hetek nem mentek zökkenőmentesen. A fir-service-t és a license-service-t is befejezte Kiss Tomi (thomasklein) utánna.</p>
+
+<p>Vizsgáljuk is meg hogy hol álltunk ekkor — a hackathon utáni teljes architektúra, service-ről service-re szétszedve, funkció szerint csoportosítva:</p>
+
+<ul>
+<li><strong>Bejelentkezés &amp; jogosultság:</strong> Auth-service (saját DB: <code>adminsch_auth</code>) — Authsch mögötte</li>
+<li><strong>Regisztráció &amp; hálózat:</strong> Reg-service + AP-service (saját DB: <code>adminsch_reg</code> — szint, user, SSID, channel, MAC), VLAN-service (saját DB: <code>adminsch_vlan</code>, szinkron a DHCP Syncerrel a NOC-on)</li>
+<li><strong>Scraperek:</strong> Fir-service (<code>adminsch_fir</code> ← Kefir), Pek-service kezdete (<code>adminsch_pek</code> ← Pék.sch), bme-net-filter-service (<code>adminsch_bmenet_filter</code> ← <a href="http://net.bme.hu/filter">net.bme.hu/filter</a>) — mind az Auth-service-nek jelent</li>
+<li><strong>Kommunikáció:</strong> Email-service, Exchange-service, Sympa-service, Schacc-service kezdetlegesen (→ Mail.sch, Lists.sch)</li>
+<li><strong>Külső integrációk:</strong> Windows-service (→ Active Directory), netwatcher-service (saját idősoros DB: InfluxDB, ← Netwatcher data provider), ipwave-service (↔ ipwave)</li>
+<li><strong>Admin felület:</strong> Adminview-service (saját DB: <code>adminsch_adminview</code>, ← Adminview Syncer), React App — a Kubernetes Loadbalancer routolja: <code>/services/&lt;name&gt;</code> a megfelelő service-hez, <code>/</code> → React App</li>
+<li><strong>Egyéb szolgáltatás:</strong> DNS-service + DNS-acme-service kezdeti (saját DB: <code>adminsch_dns</code>), I42-service (saját DB: <code>adminsch_i42</code>, a DNS-service-t használja), Workflow-service (saját DB: <code>adminsch_workflow</code>), License-service (saját: MongoDB), doc-service (még csak terv — async API)</li>
+<li><strong>Közös infrastruktúra:</strong> RabbitMQ — üzenetsor, ez kötötte össze a service-eket egymással. Minden kérés URL alapján jutott a megfelelő service-hez, az azonosítás pedig mindenhol JWT-vel (JSON Web Token) történt</li>
+</ul>
+
+<p>Amikor egyszer valaki megkérdezi, pontosan hogyan is jut internethez egy új lakó a kollégiumban — hát pont ez volt a kérdés, amit az elején feltettem. A válasz: regisztrálsz egy IP-t az AdminSCH felületén (fejenként 2 publikusat, akármennyi MAC-cel), ez eljut a reg-service-hez, ami konzultál a VLAN-service-el. Eközben fut egy Radius syncer és egy DHCP Syncer is a NOC-on, ami 2 percenként lekérdezi a friss adatokat, és feltölti velük a RADIUS, illetve a DHCP szervert. Amikor a géped csatlakozik, a switch a RADIUS-on keresztül lekérdezi, melyik VLAN-ba kell tennie a portot — ezt hívjuk Port Auth-nak —, utána jön egy sima DHCP kérés, és kapsz egy IP-t. Ha valaki nem kollégista, vagy nincs rá jogosultsága, azt a Fir- és Pék-service szűri ki előtte. Ilyen egyszerű — mondjuk két tucat service és pár év fejlesztés árán.</p>
+
+<img src="assets/network-diagram.png" alt="A hálózati architektúra: RADIUS, DHCP, VLAN-service és a switchek" width="1180" height="1006">
+  <p class="img-cap">A hálózati architektúra: RADIUS, DHCP, VLAN-service és a switchek</p>
+
+<h3>2022. Augusztus 1 - Az átállás</h3>
+
+<span class="year-anchor" data-year="2022.8"></span>
+
+<p>Már csak egy utolsó alkalom hiányzott, hogy igazán átállhassunk. Úgyhogy Július 30-ára leszerveztük a harmadik AdminSCH::Code-ot. Eddigre szinte mindent befejeztünk ami elég volt ahhoz, hogy átálljunk prodon. Nem volt egyáltalán tökéletes, de úgy éreztük, hogy meg kell tegyük ezt a lépést.</p>
+
+<p>Majd pedig zsúfolt fejlesztések után Augusztus 1, este 1 óra 26 perckor átálltunk. Akkor ott tudtuk, hogy sok funkció még hiányzik, de egyben azt is éreztük, hogy most meg kell tegyük. Tudtuk, hogy rosszabb esetben tudunk gólyanaetet biztosítani, tudtuk hogy a szolgáltatások nagy részét még ha fájdalmasan is, de pár hónapig tudjuk manuálisan vinni. És ezt a rizikót bevállaltuk</p>
+
+<img src="assets/adminsch_code_3_koccint.png" alt="Koccintás" width="1920" height="1440">
+  <p class="img-cap">Koccintás</p>
+
+<img src="assets/adminsch_code_3_circle.png" alt="Beszélgetés hogy innen hova" width="1920" height="1440">
+  <p class="img-cap">Beszélgetés hogy innen hova</p>
+
+<h3>2022 második felétől 2023 végéig</h3>
+
+<p>AdminSCH::Code Vol.3 -tól kezdve nem pihentem egy két hónapig. Szinte minden nap dolgoztam valami hiba javításán vagy valami kimaradt funkció behozásán. Külön köszönet ekkor mindenkinek, Tominak és Ferinek főleg, sokat segítettek ekkor.</p>
+
+<p>Augusztus elején hogy több beletekintésem legyen a dolgokba, először összeraktam a <code>log-service</code>-t. Lényegében api-t adott ahova service-ek tudtak küldeni logokat. Például mikor elkészült egy reg vagy valaki interaktált valamivel.</p>
+
+<p>Ezután összeraktam a Sentry-nket, bekötöttem hogy lássam mi is történik és a többiekkel közösen aktívan javítottuk a hibákat. Szeptember közepére sikeresen stabilizáltunk is mindent.</p>
+
+<p>Aztán lelassultak a dolgok 2023 elejéig. Ekkor ugyanis nem tudom miért, de sokkal több szabadidőm lett és sorban átírtam a szolgáltatásokat, mindent is sztenderdizáltam. Valószínűleg ekkor már készültem az átadásra.
+Befejeztem az <code>email-v3-service</code>-t, kihelyeztem élesbe. Összeraktam a <code>bmenet-filter-job</code>-ot, mely a BME-s sávkorlátozásokról
+értesítette a kolisokat ha valamit átléptek. Ehhez az email service api-ját használta. Emellett összeraktam az <code>account-v2-service</code>-t mely megvalósított szinte mindent ami az Active Directory-val való interakcióhoz kellett. Az év végére
+pedig összeraktam két dolgot. Egyrészt a <code>workflow-v2-service</code>-t ami már tudott kezelni egyes eseteket amik kimaradtak az
+eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend volt kszk-soknak. Eddigre már kifáradtam és nem akartam a frontendhez sokat nyúlni. Úgyhogy behúztam egy kész React Admin nevű megoldást egyes csak API-ból elérhető dolgok kezeléséhez.</p>
+
+<h3 data-year="2024.1">2024–2026 — a stafétabot</h3>
+
+<span class="year-anchor" data-year="2023.1"></span>
+
+<p>Megérkezett egy új generáció utánnunk. Pomucz Tomi és Wendl Lili vitte a legtöbbet, de rendszeresen dolgozott rajta Spyro, Szenes Márton Miklós, zsotroav (más néven Török Zsombor), Tóth Elíz, Tőrös András, Kiss Tomi és mások is.</p>
+
+<p>Ezt a szakaszt már csak git-ből tudtam összerakni, de tovább finomodott minden — sőt, az egyik legrégebbi kihívásunk végre valódi megoldást kapott.</p>
+
+<span class="year-anchor" data-year="2024.62"></span>
+
+<p><strong>2024 augusztusában</strong> Kiss Tomi és Pomucz Tomi egy nagy, összehangolt munkával — a frontend, az auth-service, az account-v2-service, az email-v3-service és a workflow-v2-service egyszerre változott — nekiálltak annak, amit a legelső kihívásként feltettem az elején: <strong>hogyan oldjuk meg 500 új diák önkiszolgált regisztrációját.</strong> A funkció neve „schaccreg&quot; lett — ez a név egyébként már 2022 óta ott lapult egy auth-service commit-üzenetben, csak korábban nem épült köré teljes önkiszolgáló folyamat. Még ők maguk is megjegyezték egy commitban, hogy a név félrevezető, és át kellett nevezni rendes regisztrációra. 2025-ben jött hozzá az impersonation-funkció (hogy egy KSZK-s a felhasználó nevében is végig tudja csinálni a folyamatot support céljából), 2026 augusztusában pedig még mindig csiszolgatják — legutóbb egy figyelmeztető üzenetet adtak hozzá gólyáknak. Végre meg lett a válasz.</p>
+
+<p>Egy másik régi probléma is megoldódott: a NAT mögötti eszközök hálózati regisztrációja. Első nekifutás 2024 nyarán volt a reg-service-ben (<code>natreg</code> branch, Bence Orosz és Hunor Toth), kicsit döcögősen. A végleges megoldás 2026 januárjában született meg, <code>sch-natgw-sync</code> néven — Wendl Lili és Pomucz Tomi a NAT mögötti routerekkel beszélő szolgáltatást írtak, VRRP failover-állapottal és Prometheus-metrikákkal, és a munka a mai napig tart. Mellé zsotroav egy egész hibakereső felületet épített a frontendbe (hogy a felhasználók maguk tudják diagnosztizálni a hálózati gondjaikat), Tőrös András pedig a NAT-táblázat felületét alakította ki.</p>
+
+<span class="year-anchor" data-year="2025.6"></span>
+
+<p>A <code>levlista-service</code> — nálunk ez a levelezőlista-kezelés (Google Groups és Microsoft Exchange disztribúciós listák szinkronban tartása), gyakorlatilag a régi Sympa-service utódja. Nem volt egyenes út: Spyro 2024 őszén nekiállt, majd egy ponton feladta — a commit-üzenete szó szerint „I give up, but i’ve written down what i know&quot; —, aztán hét hónapig senki sem nyúlt hozzá. 2025 júliusában Spyro újra visszatért hozzá, majd az őszi hónapokban Szenes Márton Miklós vitte sokkal tovább, a saját <code>second-release</code>/<code>second-release-extra-features</code> branch-eivel — és a munka azóta is aktívan folyik.</p>
+
+<span class="year-anchor" data-year="2026.2"></span>
+
+<p>2026 márciusában egy vadonatúj <code>notification-service</code> is született — Szenes Márton Miklós indította el, Spyro pedig napokon belül csatlakozott és lett a legaktívabb közreműködője. Egy generikus értesítő-rendszer ez API-kulcsokkal, feliratkozásokkal, email- és Discord-webhookos küldéssel, aminek egy része egy másik KSZK-s rendszerből, a „belepteto-sch&quot;-ból lett újrahasznosítva.</p>
+
+<p>De azért jó látni, hogy nem csak mi szenvedtünk annó a projekttel. Hanem a jelenlegi generáció is megközd vele. 2025 novemberében Tóth Elíz két egymást követő napon írta be a helm-charts repóba, hogy „I am losing my goddamn mind&quot;, majd „Added weight because kube is a lousy motherf*cker&quot; — a Kubernetes-klaszter, amire az egész rendszer épül, néha 2025-ben is ugyanolyan makacs tudott lenni, mint 2020-ban:)</p>
+
+<p>Szóval a történet nem állt meg 2023-ban, és nem is csak simán továbbfolyt.</p>
+
+</section>
+
+<section data-rail-mode="basic" id="sec-architecture">
+
+<h2>Architektúra</h2>
+
+<h3>Architektúra három állapotban</h3>
+
+<p>Ehhey még visszatérek. TODO:)</p>
+
+<div class="card">
+    <div id="chart-category"></div>
+    <p class="chart-caption">73 mai repó, hat kategóriában</p>
+  </div>
+
+<div class="card">
+    <div id="chart-toprepos"></div>
+    <p class="chart-caption">Top 12 repó a nyers commit-szám szerint, a maradék 62 egy összesítő sávban</p>
+  </div>
+
+<h3>Mi épült mikor — dióhéjban</h3>
+
+<p>Ha valaki csak a funkciókra kíváncsi, íme az egész történet pár sorban:</p>
+
+<ul>
+<li><strong>2013–2018 (AdminSCH legacy):</strong> Schacc-regisztráció, alap admin felület, kézi(bb) hálózati IP-MAC kiosztás — mind egyetlen PHP-kódbázisban</li>
+<li><strong>2019:</strong> Python-alapú „transient” frontend a legacy fölé; az első igazi microservice-ek (<code>ip-service</code>, <code>mac-service</code>, <code>dns-service</code>, <code>reg-service</code>); Fizetős hálóregisztráció</li>
+<li><strong>2020:</strong> csendben, kevesek által észrevéve megépül a reg-service, a vlan-service és a devops-alap (<code>helm-charts</code>/<code>ci-templates</code>) — 2021-ben áll meg tényleg minden</li>
+<li><strong>2022 (AdminSCH Code):</strong> a nagy újraírás — React frontend, körülbelül két tucat önálló microservice, RabbitMQ üzenetsor, JWT-azonosítás mindenhol, Kubernetes-routing, RADIUS+DHCP hálózati automatika</li>
+<li><strong>2022 december:</strong> második, kisebb workshop — a windows-service beolvad az account-service-be, Vite váltja a Create React App-ot</li>
+<li><strong>2023:</strong> finomítás és a végleges átállás — lezárul a legacy PHP-rendszer, stabil a devops pipeline</li>
+<li><strong>2023–2026:</strong> második nekifutás a 2022-es service-eknek (<code>email-v3</code>, <code>workflow-v2</code>); <strong>schaccreg</strong> — végre önkiszolgáló regisztráció; a NAT kezelése is megoldódik (<code>sch-natgw-sync</code>); <code>levlista-service</code> (levelezőlista-kezelés, döcögős újraindítással); vadonatúj <code>notification-service</code> és egy új generáció tovább viszi a fejlesztést.</li>
+</ul>
+
+<h3>Amit archiváltunk</h3>
+
+<p>34 repó — a mai 73-ból közel a fele — mára archiválva van a GitLabon: vagy leváltotta őket valami, vagy megoldottuk máshogy a problémát, amire épültek. Ezek nem hibák, csak lezárt fejezetek.</p>
+
+<p>A leglátványosabb csoport a 2019-es service-ek: <code>ap-service</code>, <code>ad-service</code>, <code>exchange-service</code>, <code>mac-service</code>, <code>ipwave-service</code>, <code>dhcp-service</code>, <code>ip-service</code>, <code>template-service</code> és a <code>transient-server</code>. Ezeket mind váltottuk a 2022-es munka során ahogy felfedeztünk dizájn hibákat.</p>
+
+<p>A <code>halosdb-splitter</code> — A tool amivel Augusztus elsején átmigráltunk minden adatot prodon. Néhány hackathon-hétvégi ötlet meg sosem jutott túl a vázon: a <code>fir-syncer-job</code> és a <code>net-filter-service</code> egyetlen „initial commit” után abbamaradt, egy korai <code>filter-bmenet-service</code>-próbálkozás (PoC) helyett végül a ma is élő <code>bmenet-filter-service</code>/<code>bmenet-filter-job</code> lett a megoldás, az <code>adminview-mock-service</code> pedig abbamaradt.</p>
+
+<p>A <code>license-service-kotlin</code> mellett volt egy Java-s testvérkísérlet is (<code>adminsch-security-java</code>) — öt commit, 2020 végén, aztán soha többé.</p>
+
+<p>A többi archivált repó (<code>sympa-service</code>, <code>netwatcher-backend</code>, <code>reg-exporter</code>, <code>payment-reader</code>, <code>adminsch-models</code>, <code>adminsch-logging-python</code>, <code>maintenance-site</code>) egyszerűen befejeződött: megcsinálták, amire valók voltak, és nem igényeltek több munkát.</p>
+
+</section>
+
+<section data-rail-mode="full" id="sec-dev">
+
+<h2>Fejlesztések és statisztikák</h2>
+
+<h3>Kezdeményezések időrendben</h3>
+
+<p>A teljes commit történeten végigmenve ezek a konkrét, névvel azonosítható kezdeményezések rajzolódnak ki az elmúlt 13 évben:</p>
+
+  <div class="event-card" id="ev-0" data-idx="0">
+    <div class="event-meta"><span>2013-02-11 → 2013-03-10</span><span>Zolij</span></div>
+    <h4>AdminSCH legacy elindul</h4>
+    <p>Az első hónap: díjcsomagok, beléptetés, szobaszám+MAC a FIR-ből.</p>
+  </div>
+  <div class="event-card" id="ev-1" data-idx="1">
+    <div class="event-meta"><span>2013-04-11 → 2013-04-13</span><span>Zolij</span></div>
+    <h4>WiFi-kezelő modul</h4>
+    <p>Ajax-os WiFi AP-regisztráció és -kezelés a felhasználóknak — alig két hónappal az indulás után.</p>
+  </div>
+  <div class="event-card" id="ev-2" data-idx="2">
+    <div class="event-meta"><span>2014-05-15 → 2014-06-04</span><span>hunbalazs</span></div>
+    <h4>MAC-kereső v0.1</h4>
+    <p>Az első admin MAC-cím kereső tábla — vidám commit-üzenetekkel.</p>
+  </div>
+  <div class="event-card" id="ev-3" data-idx="3">
+    <div class="event-meta"><span>2014-07-27 → 2014-08-31</span><span>Zolij</span></div>
+    <h4>Exchange-integráció</h4>
+    <p>A levelezés-integráció akadozott: lassúság, hibás API-válaszok, login nélküli userdata-feltöltés</p>
+  </div>
+  <div class="event-card" id="ev-4" data-idx="4">
+    <div class="event-meta"><span>2015-11-09 → 2015-11-15</span><span>Kalmár Balázs, Zolij</span></div>
+    <h4>macsearch — switch-alapú újraírás</h4>
+    <p>A MAC-kereső újraírva switch/switchport-tudatos kereséssel.</p>
+  </div>
+  <div class="event-card" id="ev-5" data-idx="5">
+    <div class="event-meta"><span>2016-01-07</span><span>Dániel Bakai</span></div>
+    <h4>Címzési séma átdolgozása</h4>
+    <p>Egyetlen nap alatt átdolgozta a lakcím-kezelést egy új DB-sémára, UI-tól az e-mail-visszaigazolásig.</p>
+  </div>
+  <div class="event-card" id="ev-6" data-idx="6">
+    <div class="event-meta"><span>2016-01-15 → 2016-02-29</span><span>Zolij</span></div>
+    <h4>Authsch-integráció</h4>
+    <p>Az Authsch lesz AdminSCH tényleges identitás-forrása.</p>
+  </div>
+  <div class="event-card" id="ev-7" data-idx="7">
+    <div class="event-meta"><span>2016-07-01 → 2016-09-12</span><span>Zolij</span></div>
+    <h4>2016 nyár — regisztráció finomítása</h4>
+    <p>Sávszélesség-korlátos megújítási szabályok, IP-blokk kizárások, PHP7-re való átállás — és egy „cake icon” nevű commit.</p>
+  </div>
+  <div class="event-card" id="ev-8" data-idx="8">
+    <div class="event-meta"><span>2016-12-03 → 2016-12-05</span><span>Zolij</span></div>
+    <h4>Jelszó-visszaállítás és AD-felhasználókezelés</h4>
+    <p>Önkiszolgáló jelszó-visszaállítás, valamint AD-fiókok tiltása/engedélyezése admin felületről.</p>
+  </div>
+  <div class="event-card" id="ev-9" data-idx="9">
+    <div class="event-meta"><span>2017-01-01 → 2018-07-31</span><span>Zolij</span></div>
+    <h4>Belső hálózati regisztráció</h4>
+    <p>Koliszobán belüli hálózati regisztráció — beta, bevezetés, majd ideiglenes leállítás.</p>
+  </div>
+  <div class="event-card" id="ev-10" data-idx="10">
+    <div class="event-meta"><span>2017-10-02 → 2017-10-17</span><span>Zolij</span></div>
+    <h4>UI-modernizálás (toast, inline-szerkesztés)</h4>
+    <p>Toast-értesítések, interaktív MAC-validáció és x-editable inline-szerkesztés kerül a felületre.</p>
+  </div>
+  <div class="event-card" id="ev-11" data-idx="11">
+    <div class="event-meta"><span>2019-03-08 → 2019-10-02</span><span>marcsello, Janega Zoltán</span></div>
+    <h4>RVT→KSZK névváltás</h4>
+    <p>A frontend RVT-hivatkozásait KSZK/NETeam névre cserélték — a merge 7 hónappal később, ismeretlen okból, vissza lett vonva.</p>
+  </div>
+  <div class="event-card" id="ev-12" data-idx="12">
+    <div class="event-meta"><span>2019-04-01 → 2019-07-15</span><span>Torma Kristóf, Márki-Zay Ferenc, Madarász Bence, Sanya</span></div>
+    <h4>bmejegy — fizetős hálóregisztráció</h4>
+    <p>Az egyetem fizetős rendszerének integrációja — innen a „final5” commit-vicc.</p>
+  </div>
+  <div class="event-card" id="ev-13" data-idx="13">
+    <div class="event-meta"><span>2019-06-05 → 2019-07-30</span><span>Bendegúz Gyönki</span></div>
+    <h4>auth-service és dns-service — az alapok lerakása</h4>
+    <p>A ma is élő dns-service CRUD-alapjait ő rakta le, host-lekérdezéstől a séma kialakításáig, majd mindkét szolgáltatás első vázát is ő építette fel, beleértve az AD-tagság-ellenőrzést az auth-service-be.</p>
+  </div>
+  <div class="event-card" id="ev-14" data-idx="14">
+    <div class="event-meta"><span>2019-06-05 → 2019-07-05</span><span>Bodor Máté, Márki-Zay Ferenc</span></div>
+    <h4>A transient-server és az első microservice-ek felépítése</h4>
+    <p>Márki-Zay Ferenc mellett ő rakta le a transient-server alapjait és az első microservice-wrappereket (mac-, dns-, fir-service).</p>
+  </div>
+  <div class="event-card" id="ev-15" data-idx="15">
+    <div class="event-meta"><span>2019-07-30</span><span>Armin Zavada</span></div>
+    <h4>ap-service — egy nap alatt nulláról</h4>
+    <p>Egyetlen nap alatt épült fel a szolgáltatás teljes váza a környezet-setuptól a REST API-kig és a csatorna-számításig.</p>
+  </div>
+  <div class="event-card" id="ev-16" data-idx="16">
+    <div class="event-meta"><span>2019-08-01 → 2019-10-31</span><span>Laszlo Rafael, Márki-Zay Ferenc</span></div>
+    <h4>AP/MAC/hálózat-regisztráció UI</h4>
+    <p>Sávszélesség-korlátozás, AP/MAC kezelés a frontendben.</p>
+  </div>
+  <div class="event-card" id="ev-17" data-idx="17">
+    <div class="event-meta"><span>2019-08-07 → 2019-08-25</span><span>Csaba Zamolyi</span></div>
+    <h4>ad-service</h4>
+    <p>Az AD-integrációs microservice nulláról felépítve — jelszó- és email-csere, fiók-elérhetőség ellenőrzése LDAP-on keresztül.</p>
+  </div>
+  <div class="event-card" id="ev-18" data-idx="18">
+    <div class="event-meta"><span>2019-08-17 → 2019-08-25</span><span>Adam Kovacs</span></div>
+    <h4>Másodlagos (inner) IP-cím regisztráció</h4>
+    <p>A felhasználók egy második, belső IP-címet is regisztrálhattak — ip-service, auth-service és a frontend együtt bővült érte.</p>
+  </div>
+  <div class="event-card" id="ev-19" data-idx="19">
+    <div class="event-meta"><span>2019-10-03</span><span>Csaba Zamolyi</span></div>
+    <h4>ad-service memóriaszivárgás javítása</h4>
+    <p>Két hónappal az indulás után valódi memóriaszivárgást talált és javított a saját szolgáltatásában.</p>
+  </div>
+  <div class="event-card" id="ev-20" data-idx="20">
+    <div class="event-meta"><span>2019-12-19</span><span>Csókás Bence</span></div>
+    <h4>template-service</h4>
+    <p>Saját szavaival is jelezte a commit-üzenetben, hogy egyelőre csak az olvasás működik.</p>
+  </div>
+  <div class="event-card" id="ev-21" data-idx="21">
+    <div class="event-meta"><span>2020-01-16 → 2020-01-18</span><span>Bodor Máté</span></div>
+    <h4>ipwave-service</h4>
+    <p>Egy IP-lekérdező végponttal indította el a szolgáltatást.</p>
+  </div>
+  <div class="event-card" id="ev-22" data-idx="22">
+    <div class="event-meta"><span>2020-02-03 → 2021-12-02</span><span>marcsello, Sanya</span></div>
+    <h4>Hálózati syncer trió</h4>
+    <p>sch-dns-sync, sch-radius-sync, sch-dhcp-sync — gyors sprintek, marcsello vitte a terhet.</p>
+  </div>
+  <div class="event-card" id="ev-23" data-idx="23">
+    <div class="event-meta"><span>2020-05-10 → 2021-01-31</span><span>Márki-Zay Ferenc</span></div>
+    <h4>helm-charts + ci-templates</h4>
+    <p>A devops-alap, amire a mai Kubernetes-klaszter is épül.</p>
+  </div>
+  <div class="event-card" id="ev-24" data-idx="24">
+    <div class="event-meta"><span>2020-06-28 → 2020-12-31</span><span>Márki-Zay Ferenc</span></div>
+    <h4>reg-service (v1)</h4>
+    <p>A mai reg-service közvetlen elődje.</p>
+  </div>
+  <div class="event-card" id="ev-25" data-idx="25">
+    <div class="event-meta"><span>2020-07-13 → 2020-07-20</span><span>Agócs Dániel</span></div>
+    <h4>vlan-service (v1)</h4>
+    <p>Egy hét alatt megírva — „Removed halosdb access.”</p>
+  </div>
+  <div class="event-card" id="ev-26" data-idx="26">
+    <div class="event-meta"><span>2020-09-20 → 2021-07-05</span><span>Benjamin Peter (kezdte), Márki-Zay Ferenc (folytatta)</span></div>
+    <h4>license-service-kotlin (elvetve)</h4>
+    <p>Kotlinban indult, sosem fejeződött be — 2022-ben sima license-service váltotta.</p>
+  </div>
+  <div class="event-card" id="ev-27" data-idx="27">
+    <div class="event-meta"><span>2020-10-24 → 2020-11-05</span><span>Márki-Zay Ferenc</span></div>
+    <h4>adminsch-security-java kísérlet</h4>
+    <p>Öt commit erejéig egy Java-alapú testvérkísérlet is versenyzett a security-libért — a Python-verzió nyert.</p>
+  </div>
+  <div class="event-card" id="ev-28" data-idx="28">
+    <div class="event-meta"><span>2021-02-18 → 2021-07-21</span><span>tothadam</span></div>
+    <h4>i42-service (szóló kezdő projekt)</h4>
+    <p>Szóló projekt naplószerű commit-üzenetekkel — a deploy elkészül, aztán rögtön félre is kerül.</p>
+  </div>
+  <div class="event-card" id="ev-29" data-idx="29">
+    <div class="event-meta"><span>2021-06-29</span><span>Laszlo Rafael</span></div>
+    <h4>RabbitMQ-VM felépítése</h4>
+    <p>Egy teljes évvel korábban felépítve, mint hogy bármelyik service ténylegesen használni kezdte volna.</p>
+  </div>
+  <div class="event-card" id="ev-30" data-idx="30">
+    <div class="event-meta"><span>2021-11-03 → 2021-11-09</span><span>Laszlo Rafael</span></div>
+    <h4>Harbor — konténer registry összerakása</h4>
+    <p>Terraform + Ansible + LDAP-hitelesítés — azóta is aktívan karbantartva, 69 commit.</p>
+  </div>
+  <div class="event-card" id="ev-31" data-idx="31">
+    <div class="event-meta"><span>2021-12-30 → 2022-03-20</span><span>Bence Orosz, Benjamin Peter</span></div>
+    <h4>windows-service (eredeti)</h4>
+    <p>Külön szolgáltatás a Windows-integrációra — 2022 decemberében beolvasztva az account-service-be.</p>
+  </div>
+  <div class="event-card" id="ev-32" data-idx="32">
+    <div class="event-meta"><span>2022-03-19 → 2022-03-20</span><span></span></div>
+    <h4>AdminSCH::Code hackathon Vol. 1</h4>
+    <p>Az első nagy hackathon-hétvége — react-app, workflow-service, schacc-service, adminview-mock-service és több más szolgáltatás alapjai születtek meg egyszerre.</p>
+  </div>
+  <div class="event-card" id="ev-33" data-idx="33">
+    <div class="event-meta"><span>2022-03-19</span><span>György Kurucz</span></div>
+    <h4>filter-bmenet-service — korai PoC-próbálkozás</h4>
+    <p>A hackathon-hétvégén egy gyors prototípus, amit végül a ma is élő bmenet-filter-service/bmenet-filter-job váltott fel.</p>
+  </div>
+  <div class="event-card" id="ev-34" data-idx="34">
+    <div class="event-meta"><span>2022-03-19 → 2022-03-20</span><span>Cseh Viktor</span></div>
+    <h4>netwatcher-backend — a JWT-hitelesítés összerakása</h4>
+    <p>A portonkénti adatlekérdezéstől a JWT-hitelesítés működéséig két nap alatt.</p>
+  </div>
+  <div class="event-card" id="ev-35" data-idx="35">
+    <div class="event-meta"><span>2022-06-25 → 2022-06-26</span><span>Gelencser Ákos, Bence Orosz, marcsello, zoleee, Márki-Zay Ferenc, Laszlo Rafael és sokan mások</span></div>
+    <h4>AdminSCH::Code hackathon Vol. 2</h4>
+    <p>A nagy újraírás hétvégéje — React frontend, ~15 új service egyszerre.</p>
+  </div>
+  <div class="event-card" id="ev-36" data-idx="36">
+    <div class="event-meta"><span>2022-06-25 → 2022-11-06</span><span>Horváth Zoltán</span></div>
+    <h4>email-service — JWT, RabbitMQ és Sentry integrálása</h4>
+    <p>Horváth Zoltán (zoleee) vitte végig: JWT-hitelesítés, RabbitMQ-routing, Sentry-integráció, AsyncAPI-dokumentáció.</p>
+  </div>
+  <div class="event-card" id="ev-37" data-idx="37">
+    <div class="event-meta"><span>2022-06-26 → 2022-07-31</span><span>Sinkó Dániel</span></div>
+    <h4>Személyes regisztráció a frontenden</h4>
+    <p>A személyes hálóregisztráció form-kiegészítése és a statikus DNS-regisztráció a react-appban.</p>
+  </div>
+  <div class="event-card" id="ev-38" data-idx="38">
+    <div class="event-meta"><span>2022-07-28 → 2022-07-30</span><span>Bence Orosz, Gyimesi Norbert, Cseh Viktor</span></div>
+    <h4>vlan-service-ng (elvetve)</h4>
+    <p>Párhuzamos újraírási kísérlet — 3 nap után elvetették, és másnap az eredeti vlan-service kapott friss, FastAPI-alapú átírást helyette.</p>
+  </div>
+  <div class="event-card" id="ev-39" data-idx="39">
+    <div class="event-meta"><span>2022-07-30 → 2022-09-01</span><span>marcsello, Bence Orosz, gombossb, Eck Balázs</span></div>
+    <h4>Syncerek átállása az új backendre</h4>
+    <p>A 2020-as sync trió tagjai igazodnak a hackathon hétvégéjén újraírt backendhez.</p>
+  </div>
+  <div class="event-card" id="ev-40" data-idx="40">
+    <div class="event-meta"><span>2022-08-08 → 2022-09-02</span><span>Laszlo Rafael, Bence Orosz</span></div>
+    <h4>Sentry bevezetése</h4>
+    <p>Sentry hibakövetés bevezetve a legtöbb service-be és a react-appba, pár hét alatt.</p>
+  </div>
+  <div class="event-card" id="ev-41" data-idx="41">
+    <div class="event-meta"><span>2022-10-14 → 2022-11-01</span><span>Gelencser Ákos, Laszlo Rafael</span></div>
+    <h4>dns-advanced UI rework</h4>
+    <p>Munkafolyamat-integrált, típus-specifikus DNS-rekord kezelő UI.</p>
+  </div>
+  <div class="event-card" id="ev-42" data-idx="42">
+    <div class="event-meta"><span>2022-10-18</span><span>Laszlo Rafael</span></div>
+    <h4>RabbitMQ élesben</h4>
+    <p>A vlan-service felzárkózik a RabbitMQ-hoz (a reg-service már júniusban megkapta) — a hálózati automatika utolsó láncszeme.</p>
+  </div>
+  <div class="event-card" id="ev-43" data-idx="43">
+    <div class="event-meta"><span>2022-12-13 → 2022-12-19</span><span>Tamas Kiss, Laszlo Rafael</span></div>
+    <h4>Második workshop</h4>
+    <p>windows-service beolvad az account-service-be, Vite váltja a CRA-t.</p>
+  </div>
+  <div class="event-card" id="ev-44" data-idx="44">
+    <div class="event-meta"><span>2023-01-29 → 2024-02-01</span><span>Laszlo Rafael</span></div>
+    <h4>account-v2-service</h4>
+    <p>JWT-scope-ok, LDAP-kliens beépített healthcheckkel.</p>
+  </div>
+  <div class="event-card" id="ev-45" data-idx="45">
+    <div class="event-meta"><span>2023-02-20 → 2023-02-28</span><span>gombossb</span></div>
+    <h4>React-app UI/UX-csiszolás és MAC-formátum normalizálás</h4>
+    <p>Windows- és Cisco-formátumú MAC-címeket is elfogadóvá tette a felület, mellé hibaelhárító útmutatóval.</p>
+  </div>
+  <div class="event-card" id="ev-46" data-idx="46">
+    <div class="event-meta"><span>2023-02-22 → 2023-02-26</span><span>Horváth Zoltán</span></div>
+    <h4>mac-oui-service megalapítása</h4>
+    <p>Négy nap alatt épített szolgáltatás a MAC-cím gyártó szerinti lekérdezésére.</p>
+  </div>
+  <div class="event-card" id="ev-47" data-idx="47">
+    <div class="event-meta"><span>2023-02-25 → 2023-02-26</span><span>gabor</span></div>
+    <h4>DNS host review oldal megújítása</h4>
+    <p>Vizuálisan is átláthatóvá tette a DNS host review oldalt, chip-ekkel jelezve a regisztráció típusát.</p>
+  </div>
+  <div class="event-card" id="ev-48" data-idx="48">
+    <div class="event-meta"><span>2023-08-22 → 2024-02-01</span><span>Laszlo Rafael</span></div>
+    <h4>b2b-app admin-panel</h4>
+    <p>Belső react-admin-stílusú kezelőpanel a KSZK-soknak.</p>
+  </div>
+  <div class="event-card" id="ev-49" data-idx="49">
+    <div class="event-meta"><span>2024-07-01 → 2026-08-30</span><span>Bence Orosz, Hunor Toth (első nekifutás), Wendl Lili, Pomucz Tamás (végleges)</span></div>
+    <h4>NAT-regisztráció / sch-natgw-sync</h4>
+    <p>Routeres integráció, VRRP failover, Prometheus-metrikák.</p>
+  </div>
+  <div class="event-card" id="ev-50" data-idx="50">
+    <div class="event-meta"><span>2024-07-17 → 2024-10-23</span><span>zyxtron</span></div>
+    <h4>Csoportos és egyéni regisztráció a b2b-appban</h4>
+    <p>A belső admin-panel kibővítve saját és csoportos regisztrációs űrlapokkal.</p>
+  </div>
+  <div class="event-card" id="ev-51" data-idx="51">
+    <div class="event-meta"><span>2024-07-27 → 2024-07-29</span><span>zsotroav</span></div>
+    <h4>Személyes hálózati regisztrációk (personalreglist)</h4>
+    <p>A személyes és csoportos regisztrációk szétválasztása a react-appban és a reg-service-ben.</p>
+  </div>
+  <div class="event-card" id="ev-52" data-idx="52">
+    <div class="event-meta"><span>2024-08-01 → 2026-08-31</span><span>Tamas Kiss, Pomucz Tamás</span></div>
+    <h4>schaccreg — önkiszolgáló regisztráció</h4>
+    <p>A nyitó kihívás — 500 új diák regisztrációja — végre önkiszolgáló megoldást kap.</p>
+  </div>
+  <div class="event-card" id="ev-53" data-idx="53">
+    <div class="event-meta"><span>2024-09-02 → 2026-09-01</span><span>Spyro, Szenes Márton Miklós</span></div>
+    <h4>levlista-service</h4>
+    <p>„I give up, but i have written down what i know” → 7 hónap után Spyro maga tér vissza, majd Szenes Márton Miklós viszi sokkal tovább.</p>
+  </div>
+  <div class="event-card" id="ev-54" data-idx="54">
+    <div class="event-meta"><span>2024-09-04</span><span>zyxtron</span></div>
+    <h4>IPv6-cím automatikus generálása regisztrációhoz</h4>
+    <p>Minden regisztráció automatikusan kap IPv6-címet is.</p>
+  </div>
+  <div class="event-card" id="ev-55" data-idx="55">
+    <div class="event-meta"><span>2025-02-27</span><span>László Mócsy</span></div>
+    <h4>DNS-rekordok kezelése a felületen</h4>
+    <p>Teljes DNS-rekord CRUD és táblázatos nézet a frontendbe.</p>
+  </div>
+  <div class="event-card" id="ev-56" data-idx="56">
+    <div class="event-meta"><span>2025-06-11 → 2025-06-13</span><span>Muzslai László</span></div>
+    <h4>DNS-zóna delegálás</h4>
+    <p>DNS-zóna szerkesztési jog delegálása nem-adminoknak — a dns-service és a react-app együtt bővült érte.</p>
+  </div>
+  <div class="event-card" id="ev-57" data-idx="57">
+    <div class="event-meta"><span>2025-08-01 → 2025-08-02</span><span>Abonyi Bence</span></div>
+    <h4>Enum-refaktor</h4>
+    <p>String scope-ok enumra cserélve 9 repóban (2 library + 7 service), két nap alatt.</p>
+  </div>
+  <div class="event-card" id="ev-58" data-idx="58">
+    <div class="event-meta"><span>2025-08-01 → 2025-08-17</span><span>zsotroav</span></div>
+    <h4>Hálózati troubleshoot guide</h4>
+    <p>Önkiszolgáló hibakereső segédlet a frontendbe, operációs rendszerenkénti instrukciókkal.</p>
+  </div>
+  <div class="event-card" id="ev-59" data-idx="59">
+    <div class="event-meta"><span>2025-08-02 → 2025-08-17</span><span>Tőrös András</span></div>
+    <h4>Sicc-kereső — DataGrid-alapú újraírás</h4>
+    <p>A SchAcc-kereső felület újraírása MUI DataGrid-re, jobb validációval és pontos-egyezés kereséssel.</p>
+  </div>
+  <div class="event-card" id="ev-60" data-idx="60">
+    <div class="event-meta"><span>2025-08-02 → 2025-08-06</span><span>Muzslai László, Pomucz Tamás</span></div>
+    <h4>PEK-csoportok bevezetése</h4>
+    <p>PEK-csoportok jogosultságkezelése az auth-service-be és a felületre.</p>
+  </div>
+  <div class="event-card" id="ev-61" data-idx="61">
+    <div class="event-meta"><span>2025-10-13 → 2025-11-19</span><span>Illés</span></div>
+    <h4>reg-service modernizálása</h4>
+    <p>Típusannotációk, ruff-formázás, elavult kód eltávolítása — csendes, de fontos karbantartás.</p>
+  </div>
+  <div class="event-card" id="ev-62" data-idx="62">
+    <div class="event-meta"><span>2026-01-04</span><span>Pomucz Tamás, valkosch</span></div>
+    <h4>Egyedi DNS-rekordok (feat/custom_dns)</h4>
+    <p>Egyedi DNS-rekord funkció landol egyszerre 4 repóban.</p>
+  </div>
+  <div class="event-card" id="ev-63" data-idx="63">
+    <div class="event-meta"><span>2026-01-23 → 2026-03-03</span><span>Eliz</span></div>
+    <h4>NAT-regisztráció renew-logika és hibajavítások</h4>
+    <p>Több hónapon át javította a NAT-regisztrációk megújítási logikáját a reg-service-ben.</p>
+  </div>
+  <div class="event-card" id="ev-64" data-idx="64">
+    <div class="event-meta"><span>2026-01-25 → 2026-02-12</span><span>Tőrös András</span></div>
+    <h4>NAT-táblázat felülete</h4>
+    <p>A NAT-regisztrációk kezelésére szolgáló táblázat és szerkesztő felület a react-appban.</p>
+  </div>
+  <div class="event-card" id="ev-65" data-idx="65">
+    <div class="event-meta"><span>2026-03-05</span><span>tamas722</span></div>
+    <h4>levlista-service adatbázis-átalakítás</h4>
+    <p>Újratervezte a levlista-service adatbázis-sémáját.</p>
+  </div>
+  <div class="event-card" id="ev-66" data-idx="66">
+    <div class="event-meta"><span>2026-03-23 → 2026-09-05</span><span>Szenes Márton Miklós, Spyro</span></div>
+    <h4>notification-service</h4>
+    <p>Generikus értesítő-rendszer — email + Discord webhook.</p>
+  </div>
+
+<h3>Release-történet</h3>
+
+<p>A puszta commit-számokon túl a git tag-ek is mesélnek: 46 repóban összesen 992 valódi verziójelölés van 2019 és 2026 között.</p>
+
+<div class="card">
+    <div id="chart-releases"></div>
+    <p class="chart-caption">Kiadott git tag-ek száma évente, mind a 46 tag-elt repóban összesítve</p>
+  </div>
+
+<p><em>(2026 részleges év)</em></p>
+
+<ol start="2019">
+<li>augusztus 26-án Feri egyetlen „Prod CI&quot; nevű commit-tel egyszerre kapcsolta be az automata verziózást 11 service-en (ad-, adminview-, ap-, auth-, dns-, exchange-, fir-, ip-, mac-, sympa-service és a transient-server) — innen az azonos napon felbukkanó rengeteg <code>v0.1</code> tag. A leghosszabb életű, folyamatosan tag-elt repó a <code>dns-service</code>: hét éven át, <code>v0.1</code>-től (2019-08-26) egészen <code>1.15.5</code>-ig (2026-07-18) sosem állt meg. A <code>react-app</code> viszont a legaktívabb: 158 tag négy év alatt.</li>
+</ol>
+
+<ol start="2022">
+<li>július 31-én négy szolgáltatás (<code>react-app</code>, <code>reg-service</code>, <code>vlan-service</code>, <code>license-service</code>) mind ugyanazon a napon kapta meg az első <code>1.0.0</code> jelölését — méghozzá pontosan aznap, amikor a <code>vlan-service-ng</code> néven futó párhuzamos újraírási kísérletet elvetették, és az eredeti <code>vlan-service</code> kapott helyette friss, FastAPI-alapú átírást: a hackathon utáni fejlesztés aznap érett meg egyszerre kiadható állapotra. (Aznap, a <code>dns-service</code> commit-üzenetem szerint: „Why do I hate myself?&quot; — a release napja sem ment feszültség nélkül.)</li>
+</ol>
+
+<p>Volt itt-ott egy kis emberi esetlegesség is: az <code>auth-service</code> <code>1.5.1-security-patch</code> tagje az egyetlen a 992 közül, aminek névvel jelzett oka is van, nem csak verziószáma; az <code>account-v2-service</code>-nél 2024 augusztusában egy elgépelt extra pont került a tag névbe (<code>1.3.0.-rc3</code>, <code>1.3.0.-rc4</code>) — két kiadáson át javítatlanul. És nem minden ág futott célba: a <code>helm-charts</code>-ban egy 2023 januári, <code>pls-work</code> nevű branch (rlacko egyetlen „fix&quot; üzenetű commitja) és a react-app-beli, önbevallottan félkész <code>netwatcher-integration</code> branch (2022 márciusa, Schulcz Ferenc: „Half-ready netwatcher integration with broken charts&quot;) a mai napig ott lóg mergeletlenül.</p>
+
+<hr>
+
+<h3>Kié volt a staféta</h3>
+
+<p>Commitok évente közreműködőnként, 2013-tól — a hét legaktívabb ember névvel, a maradék 67 fő egy összesített sávban (lentebb mindenki névvel is szerepel). Jól látszik, ahogy adja tovább egyik a másiknak: <strong>Zolij → Márki-Zay Feri → én → Pomucz Tomi és Wendl Lili.</strong> Mindig akad, aki átveszi, mire az előző csúcsa elhalványul.</p>
+
+<div class="card">
+    <div id="legend-gen" class="legend"></div>
+    <div id="chart-generations"></div>
+  </div>
+
+<p>És ugyanez összesítve, ki mennyit tett hozzá a rendszerhez összesen.</p>
+
+<div class="card">
+    <div id="chart-leaderboard"></div>
+  </div>
+
+<p>A puszta commit-szám azt mondja meg, ki mennyit <em>dolgozott</em>. Nem mondja meg, mi lett a munkájából. De azért egy pár statisztika mindenki munkájából.</p>
+
+<div class="stat-row cols-5" id="loc-stat-row"></div>
+
+  <div class="loc-legend">
+    <div class="loc-legend-item"><span class="loc-legend-swatch" style="background:var(--accent)"></span>aktív</div>
+    <div class="loc-legend-item"><span class="loc-legend-swatch" style="background:var(--gridline);border:1px solid var(--border)"></span>eltűnt (felülírva/törölve)</div>
+    <div class="loc-legend-item"><span class="loc-legend-swatch" style="background:var(--other)"></span>archivált</div>
+  </div>
+
+  <div class="table-scroll">
+    <table class="loc-table" id="loc-table">
+      <thead>
+        <tr>
+          <th data-key="name" style="text-align:left">Közreműködő</th>
+          <th data-key="commits">Commit</th>
+          <th data-key="added">Hozzáadott</th>
+          <th data-key="removed">Törölt</th>
+          <th data-key="survives_archived">Archivált</th>
+          <th data-key="net">Nettó</th>
+          <th data-key="survives_active">Ma is él</th>
+          <th data-key="activePct">Megoszlás</th>
+        </tr>
+      </thead>
+      <tbody id="loc-tbody"></tbody>
+    </table>
+  </div>
+  <p class="chart-caption">Kattints egy oszlopfejlécre a rendezéshez. Húzd az egeret a „Megoszlás" sávra a pontos számokért.</p>
+
+</section>
+
+<section data-rail-mode="hidden" id="sec-thanks">
+
+<h2>Köszönet</h2>
+
+<p>Köszönet mindenkinek, aki valaha akár egyetlen sor kódot vagy bármi mást is hozzáadott ehhez a rendszerhez. Tényleg mindenkinek:</p>
+
+<div class="thanks-wall">
+    <span class="thanks-name">Janega Zoltán (zolij)</span>
+    <span class="thanks-name">Márki-Zay Ferenc</span>
+    <span class="thanks-name">Pomucz Tamás</span>
+    <span class="thanks-name">Wendl Lili</span>
+    <span class="thanks-name">Bence Orosz</span>
+    <span class="thanks-name">Tamas Kiss</span>
+    <span class="thanks-name">Spyro</span>
+    <span class="thanks-name">marcsello</span>
+    <span class="thanks-name">Gelencser Ákos</span>
+    <span class="thanks-name">zsotroav</span>
+    <span class="thanks-name">Szenes Márton Miklós</span>
+    <span class="thanks-name">Torma Kristóf</span>
+    <span class="thanks-name">gombossb</span>
+    <span class="thanks-name">Eliz</span>
+    <span class="thanks-name">Sanya</span>
+    <span class="thanks-name">Kalmár Balázs</span>
+    <span class="thanks-name">Muzsai László</span>
+    <span class="thanks-name">Abonyi Bence</span>
+    <span class="thanks-name">Horváth Zoltán</span>
+    <span class="thanks-name">Bodor Máté</span>
+    <span class="thanks-name">Agócs Dániel</span>
+    <span class="thanks-name">Gyimesi Norbert</span>
+    <span class="thanks-name">Tőrös András</span>
+    <span class="thanks-name">Benjamin Peter</span>
+    <span class="thanks-name">Csaba Zamolyi</span>
+    <span class="thanks-name">Hunor Toth</span>
+    <span class="thanks-name">Bendegúz Gyönki</span>
+    <span class="thanks-name">zyxtron</span>
+    <span class="thanks-name">tothadam</span>
+    <span class="thanks-name">Adam Kovacs</span>
+    <span class="thanks-name">Madarász Bence</span>
+    <span class="thanks-name">Cseh Viktor</span>
+    <span class="thanks-name">Illés</span>
+    <span class="thanks-name">hunbalazs</span>
+    <span class="thanks-name">Dániel Bakai</span>
+    <span class="thanks-name">Armin Zavada</span>
+    <span class="thanks-name">Takács Gergő Tibor</span>
+    <span class="thanks-name">Eck Balázs</span>
+    <span class="thanks-name">valkosch</span>
+    <span class="thanks-name">Sinkó Dániel</span>
+    <span class="thanks-name">Csókás Bence</span>
+    <span class="thanks-name">manko</span>
+    <span class="thanks-name">Marcell Pünkösd</span>
+    <span class="thanks-name">peterbenjamin2000</span>
+    <span class="thanks-name">tothgabor</span>
+    <span class="thanks-name">benjoe</span>
+    <span class="thanks-name">Fricska Kamilla</span>
+    <span class="thanks-name">gabor</span>
+    <span class="thanks-name">BenceGyurus</span>
+    <span class="thanks-name">kozkbalzs23</span>
+    <span class="thanks-name">radlaci97</span>
+    <span class="thanks-name">Revolex</span>
+    <span class="thanks-name">György Kurucz</span>
+    <span class="thanks-name">László Mócsy</span>
+    <span class="thanks-name">Szenczy Balázs</span>
+    <span class="thanks-name">tamas722</span>
+    <span class="thanks-name">Várkonyi Kornél</span>
+    <span class="thanks-name">Adrián Robotka</span>
+    <span class="thanks-name">Anna Bajnok</span>
+    <span class="thanks-name">arcter</span>
+    <span class="thanks-name">Bakos Ádám</span>
+    <span class="thanks-name">blint</span>
+    <span class="thanks-name">d.bajnok</span>
+    <span class="thanks-name">Eckl Máté</span>
+    <span class="thanks-name">florafelalora</span>
+    <span class="thanks-name">fodorpatrik2000</span>
+    <span class="thanks-name">sadneutrino</span>
+    <span class="thanks-name">Vikus</span>
+    <span class="thanks-name">Ónodi-Kiss Lili</span>
+    <span class="thanks-name">gyeben</span>
+  </div>
+  <div class="bottom-spacer"></div>
+
+</section>
+</article>
+
+<nav id="toc-rail" aria-label="Ugrás szakaszra">
+  <a href="#sec-about" data-target="sec-about">Rólam</a>
+  <a href="#sec-intro" data-target="sec-intro">Intro</a>
+  <a href="#sec-story" data-target="sec-story">Sztori és szakma</a>
+  <a href="#sec-architecture" data-target="sec-architecture">Architektúra</a>
+  <a href="#sec-dev" data-target="sec-dev">Fejlesztések és statisztikák</a>
+  <a href="#sec-thanks" data-target="sec-thanks">Köszönet</a>
+</nav>
+</div>
+
+<div id="lightbox">
+  <button class="lightbox-close" aria-label="Bezárás">&times;</button>
+  <button class="lightbox-arrow prev" aria-label="Előző">&#8249;</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
+  <button class="lightbox-arrow next" aria-label="Következő">&#8250;</button>
+</div>
+
+<script src="data.js"></script>
+<script>
+document.querySelectorAll('[data-stat]').forEach(el=>{
+  const v = META[el.dataset.stat];
+  if(v != null) el.textContent = v.toLocaleString('hu-HU');
+});
+
+/* ---- theme toggle (shared localStorage key with presentation.html) ---- */
+const themeBtn = document.getElementById('themeBtn');
+function applyTheme(t){
+  if(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('adminsch-theme', t); }
+  else{ document.documentElement.removeAttribute('data-theme'); localStorage.removeItem('adminsch-theme'); }
+  const isDark = t ? t==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  themeBtn.textContent = isDark ? '☀️' : '🌙';
+}
+applyTheme(localStorage.getItem('adminsch-theme') || null);
+themeBtn.addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const isDarkNow = cur ? cur==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(isDarkNow ? 'light' : 'dark');
+});
+
+const tocBtn = document.getElementById('tocBtn');
+const tocMenu = document.getElementById('tocMenu');
+function closeToc(){ tocMenu.classList.remove('open'); tocBtn.setAttribute('aria-expanded','false'); }
+tocBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const open = tocMenu.classList.toggle('open');
+  tocBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+tocMenu.querySelectorAll('a').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    e.preventDefault();
+    document.getElementById(a.dataset.target)?.scrollIntoView({behavior:'smooth', block:'start'});
+    closeToc();
+  });
+});
+document.addEventListener('click', closeToc);
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeToc(); });
+
+const tocRailLinks = document.querySelectorAll('#toc-rail a');
+if(tocRailLinks.length){
+  const linkByTarget = {};
+  tocRailLinks.forEach(a=> linkByTarget[a.dataset.target] = a);
+  const tocObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const link = linkByTarget[entry.target.id];
+      if(link) link.classList.toggle('active', entry.isIntersecting);
+    });
+  }, {rootMargin: '-45% 0px -45% 0px'});
+  tocRailLinks.forEach(a=>{
+    const target = document.getElementById(a.dataset.target);
+    if(target) tocObserver.observe(target);
+  });
+}
+
+/* ---- shared chart helpers ---- */
+
+function elx(tag, attrs){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+const tooltip = document.getElementById('tooltip');
+function showTip(html, x, y){
+  tooltip.innerHTML = html;
+  tooltip.classList.add('show');
+  const margin = 10;
+  const w = tooltip.offsetWidth, h = tooltip.offsetHeight;
+  let left = x + 14;
+  let top = y + 14;
+  if (left + w > window.innerWidth - margin) left = x - w - 14;
+  if (top + h > window.innerHeight - margin) top = y - h - 14;
+  left = Math.max(margin, Math.min(left, window.innerWidth - w - margin));
+  top = Math.max(margin, Math.min(top, window.innerHeight - h - margin));
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+}
+function hideTip(){ tooltip.classList.remove('show'); }
+
+function personColor(name){ const i = PERSON_SLOT[name]; return i!=null ? `var(${SERIES[i]})` : 'var(--other)'; }
+
+/* ---------------- STAT ROW ---------------- */
+const totalCommits = YEARLY.reduce((a,d)=>a+d.commits,0);
+const totalRepos = TIMELINE.length;
+const totalContributors = META.totalContributors;
+const yearsActive = 2026 - 2013;
+const stats = [
+  {value: totalCommits.toLocaleString('hu-HU'), label:'commit (merge nélkül)'},
+  {value: totalRepos, label:'repó'},
+  {value: totalContributors, label:'közreműködő'},
+  {value: yearsActive, label:'év git-történelem'},
+];
+const statRow = document.getElementById('stat-row');
+stats.forEach(s=>{
+  const tile = document.createElement('div'); tile.className='stat-tile';
+  tile.innerHTML = `<div class="value">${s.value}</div><div class="label">${s.label}</div>`;
+  statRow.appendChild(tile);
+});
+
+/* ---------------- responsive SVG helper (viewBox-driven height, never distorts) ---------------- */
+function responsiveSvg(width, height){
+  return elx('svg', {viewBox:`0 0 ${width} ${height}`, width:'100%', style:'display:block;height:auto;'});
+}
+
+/* ---------------- SIMPLE VERTICAL BAR CHART (single series) ---------------- */
+function verticalBarChart(container, data, {xKey, yKey, colorVar='--s1', width=1000, height=300, valueFmt=(v)=>v, partialKey=null}){
+  const margin = {top: 10, right: 10, bottom: 30, left: 48};
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+  const maxVal = Math.max(...data.map(d=>d[yKey]));
+  const svg = responsiveSvg(width, height);
+  const g = elx('g', {transform:`translate(${margin.left},${margin.top})`});
+  svg.appendChild(g);
+
+  const ticks = 4;
+  for(let i=0;i<=ticks;i++){
+    const y = h - (h*i/ticks);
+    const val = Math.round(maxVal*i/ticks);
+    g.appendChild(elx('line', {x1:0,x2:w,y1:y,y2:y, class:'grid-line'}));
+    const t = elx('text', {x:-8, y:y+3, class:'axis-label', 'text-anchor':'end'});
+    t.textContent = val;
+    g.appendChild(t);
+  }
+  g.appendChild(elx('line', {x1:0,x2:w,y1:h,y2:h, class:'base-line'}));
+
+  const bw = w / data.length;
+  const barW = Math.min(52, bw*0.55);
+  data.forEach((d,i)=>{
+    const val = d[yKey];
+    const bh = maxVal>0 ? (val/maxVal)*h : 0;
+    const cx = i*bw + bw/2;
+    const isPartial = partialKey && d[partialKey];
+    const rect = elx('rect', {
+      x: cx-barW/2, y: h-bh, width: barW, height: Math.max(bh,1),
+      rx: 4, ry: 4,
+      fill: `var(${colorVar})`,
+      opacity: isPartial ? 0.55 : 1,
+    });
+    g.appendChild(rect);
+    const hoverRect = elx('rect', {x: i*bw, y:0, width:bw, height:h, class:'hover-rect'});
+    hoverRect.addEventListener('mousemove', (e)=>{
+      showTip(`<b>${d[xKey]}</b><br>${valueFmt(val)}${isPartial?' <span style="opacity:.7">(részleges év)</span>':''}`, e.clientX, e.clientY);
+    });
+    hoverRect.addEventListener('mouseleave', hideTip);
+    g.appendChild(hoverRect);
+
+    const lbl = elx('text', {x:cx, y:h+21, class:'axis-label', 'text-anchor':'middle'});
+    lbl.textContent = isPartial ? d[xKey]+'*' : d[xKey];
+    g.appendChild(lbl);
+  });
+
+  container.appendChild(svg);
+}
+verticalBarChart(document.getElementById('chart-yearly'), YEARLY, {xKey:'year', yKey:'commits', colorVar:'--s1', valueFmt:v=>v+' commit'});
+verticalBarChart(document.getElementById('chart-repos'), YEARLY, {xKey:'year', yKey:'repos', colorVar:'--s3', height:260, valueFmt:v=>v+' új repó'});
+
+verticalBarChart(document.getElementById('chart-releases'), RELEASES, {xKey:'year', yKey:'tags', colorVar:'--s5', height:260, valueFmt:v=>v+' tag', partialKey:'partial'});
+
+/* ---------------- STACKED BAR: GENERATIONS ---------------- */
+(function(){
+  const container = document.getElementById('chart-generations');
+  const legendEl = document.getElementById('legend-gen');
+  const width = 1000, height = 400;
+  const margin = {top:10, right:10, bottom:30, left:48};
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const years = YEARLY.map(d=>d.year);
+  const totals = years.map((y,i)=> GEN_NAMES.reduce((a,n)=>a+GEN_DATA[n][i],0));
+  const maxVal = Math.max(...totals);
+
+  legendEl.innerHTML='';
+  GEN_NAMES.forEach((name,i)=>{
+    const c = i < 7 ? `var(${SERIES[i]})` : 'var(--other)';
+    const item = document.createElement('div'); item.className='legend-item';
+    item.innerHTML = `<span class="legend-swatch" style="background:${c}"></span>${name}`;
+    legendEl.appendChild(item);
+  });
+
+  const svg = responsiveSvg(width, height);
+  const g = elx('g', {transform:`translate(${margin.left},${margin.top})`});
+  svg.appendChild(g);
+
+  const ticks = 4;
+  for(let i=0;i<=ticks;i++){
+    const y = h - (h*i/ticks);
+    const val = Math.round(maxVal*i/ticks);
+    g.appendChild(elx('line', {x1:0,x2:w,y1:y,y2:y, class:'grid-line'}));
+    const t = elx('text', {x:-8, y:y+3, class:'axis-label', 'text-anchor':'end'});
+    t.textContent = val; g.appendChild(t);
+  }
+  g.appendChild(elx('line', {x1:0,x2:w,y1:h,y2:h, class:'base-line'}));
+
+  const bw = w/years.length;
+  const barW = Math.min(56, bw*0.6);
+
+  years.forEach((year,yi)=>{
+    let cursor = h;
+    GEN_NAMES.forEach((name,gi)=>{
+      const val = GEN_DATA[name][yi];
+      if(val<=0) return;
+      const segH = (val/maxVal)*h;
+      const color = gi < 7 ? `var(${SERIES[gi]})` : 'var(--other)';
+      const y0 = cursor - segH;
+      const rect = elx('rect', {
+        x: yi*bw + bw/2 - barW/2, y: y0, width: barW, height: Math.max(segH-2,0),
+        rx:3, ry:3, fill: color,
+      });
+      g.appendChild(rect);
+      cursor = y0 - 2;
+    });
+    const hoverRect = elx('rect', {x: yi*bw, y:0, width:bw, height:h, class:'hover-rect'});
+    hoverRect.addEventListener('mousemove', (e)=>{
+      const lines = GEN_NAMES.map((n,gi)=> GEN_DATA[n][yi]>0 ? `${n}: ${GEN_DATA[n][yi]}` : null).filter(Boolean);
+      showTip(`<b>${year}</b><br>${lines.join('<br>')}`, e.clientX, e.clientY);
+    });
+    hoverRect.addEventListener('mouseleave', hideTip);
+    g.appendChild(hoverRect);
+
+    const lbl = elx('text', {x:yi*bw+bw/2, y:h+21, class:'axis-label', 'text-anchor':'middle'});
+    lbl.textContent = year===2026 ? '2026*' : year;
+    g.appendChild(lbl);
+  });
+
+  container.appendChild(svg);
+})();
+
+/* ---------------- HORIZONTAL BAR CHARTS ---------------- */
+function horizontalBarChart(container, data, {nameKey, valKey, colorVar='--s1', height=null, colorFn=null}){
+  const rowH = 32;
+  const width = 1000;
+  const measureCtx = document.createElement('canvas').getContext('2d');
+  const maxLabelW = Math.max(...data.map(d=>{
+    measureCtx.font = `${d.other?'italic ':''}13px system-ui, -apple-system, "Segoe UI", sans-serif`;
+    return measureCtx.measureText(d[nameKey]).width;
+  }));
+  const margin = {top:6, right:70, bottom:6, left:Math.max(220, maxLabelW+30)};
+  const h = height || data.length*rowH;
+  const w = width - margin.left - margin.right;
+  const maxVal = Math.max(...data.map(d=>d[valKey]));
+
+  const svg = responsiveSvg(width, h+margin.top+margin.bottom);
+  const g = elx('g', {transform:`translate(${margin.left},${margin.top})`});
+  svg.appendChild(g);
+
+  data.forEach((d,i)=>{
+    const y = i*rowH;
+    const barH = rowH*0.55;
+    const barW = maxVal>0 ? (d[valKey]/maxVal)*w : 0;
+    const color = d.other ? 'var(--other)' : (colorFn ? colorFn(d) : `var(${colorVar})`);
+
+    const nameLbl = elx('text', {x:-10, y: y+rowH/2+4, class:'bar-label', 'text-anchor':'end', style: d.other?'font-style:italic':''});
+    nameLbl.textContent = d[nameKey];
+    g.appendChild(nameLbl);
+
+    const rect = elx('rect', {x:0, y: y+(rowH-barH)/2, width: Math.max(barW,3), height: barH, rx:4, ry:4, fill: color, opacity: d.other?0.75:1});
+    g.appendChild(rect);
+
+    const valLbl = elx('text', {x: barW+8, y: y+rowH/2+4, class:'bar-label'});
+    valLbl.textContent = d[valKey];
+    g.appendChild(valLbl);
+
+    const hoverRect = elx('rect', {x:0, y:y, width:w+60, height:rowH, class:'hover-rect'});
+    hoverRect.addEventListener('mousemove', (e)=>{
+      showTip(`<b>${d[nameKey]}</b><br>${d[valKey]} commit`, e.clientX, e.clientY);
+    });
+    hoverRect.addEventListener('mouseleave', hideTip);
+    g.appendChild(hoverRect);
+  });
+
+  container.appendChild(svg);
+}
+horizontalBarChart(document.getElementById('chart-leaderboard'), LEADERBOARD, {nameKey:'name', valKey:'total', colorFn: d=> d.other ? 'var(--other)' : 'var(--s1)'});
+
+horizontalBarChart(document.getElementById('chart-category'), CATEGORY, {nameKey:'name', valKey:'count', colorFn: d=>`var(--${CATEGORY_COLOR[d.name]})`});
+horizontalBarChart(document.getElementById('chart-toprepos'), TOP_REPOS, {nameKey:'name', valKey:'commits', colorFn: d=> d.other ? 'var(--other)' : 'var(--s1)'});
+
+/* ---------------- REPO LIFESPAN TIMELINE — dense (73 rows), so it keeps its native
+   pixel size and scrolls horizontally rather than shrinking its labels unreadable ---------------- */
+(function(){
+  const container = document.getElementById('chart-timeline');
+  const labelsEl = document.getElementById('chart-timeline-labels');
+  const legendEl = document.getElementById('legend-timeline');
+  const rowH = 15;
+  const margin = {top:22, right:16, bottom:10, left:8};
+  const w = 764;
+  const width = w + margin.left + margin.right;
+  const h = TIMELINE.length*rowH;
+
+  const cats = [...new Set(TIMELINE.map(d=>d[1]))];
+  legendEl.innerHTML='';
+  cats.forEach(cat=>{
+    const item = document.createElement('div'); item.className='legend-item';
+    item.innerHTML = `<span class="legend-swatch" style="background:var(--${CATEGORY_COLOR[cat]})"></span>${cat}`;
+    legendEl.appendChild(item);
+  });
+  const archivedCount = TIMELINE.filter(d=>d[5]).length;
+  const archivedLegendItem = document.createElement('div'); archivedLegendItem.className='legend-item';
+  archivedLegendItem.innerHTML = `<span class="legend-swatch" style="background:var(--other)"></span>archivált (${archivedCount} repó, bármely kategóriából)`;
+  legendEl.appendChild(archivedLegendItem);
+
+  function toFrac(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    return y + (m-1)/12 + d/365;
+  }
+  const minYear = 2013, maxYear = 2026 + 9/12;
+
+  const totalH = h+margin.top+margin.bottom;
+  const svg = elx('svg', {viewBox:`0 0 ${width} ${totalH}`, width:width, height:totalH, style:'display:block;'});
+  const g = elx('g', {transform:`translate(${margin.left},${margin.top})`});
+  svg.appendChild(g);
+
+  function xScale(f){ return (f-minYear)/(maxYear-minYear) * w; }
+
+  for(let y=2013; y<=2026; y++){
+    const x = xScale(y);
+    g.appendChild(elx('line', {x1:x,x2:x,y1:0,y2:h, class:'grid-line'}));
+    const t = elx('text', {x, y:-9, class:'axis-label', 'text-anchor':'middle'});
+    t.textContent = y; g.appendChild(t);
+  }
+
+  labelsEl.innerHTML = '';
+  const topSpacer = document.createElement('div');
+  topSpacer.style.height = margin.top + 'px';
+  labelsEl.appendChild(topSpacer);
+
+  TIMELINE.forEach((d,i)=>{
+    const [name, cat, first, last, commits, archived] = d;
+    const y = i*rowH;
+    const x0 = xScale(toFrac(first));
+    const x1 = xScale(toFrac(last));
+    const barW = Math.max(x1-x0, 3);
+    const color = archived ? 'var(--other)' : `var(--${CATEGORY_COLOR[cat]})`;
+
+    const rect = elx('rect', {x:x0, y: y+2, width:barW, height: rowH-5, rx:3, ry:3, fill:color, opacity: archived ? 0.75 : 1});
+    g.appendChild(rect);
+
+    if(archived){
+      const endCap = elx('line', {x1:x1, x2:x1, y1:y, y2:y+rowH, stroke:'var(--text-primary)', 'stroke-width':1.5});
+      g.appendChild(endCap);
+    }
+
+    const tipHtml = ()=> `<b>${name}</b>${archived ? ' <span style="opacity:0.7">(archivált)</span>' : ''}<br>${cat}<br>${first} → ${last}<br>${commits} commit`;
+
+    const hoverRect = elx('rect', {x:0, y:y, width:w, height:rowH, class:'hover-rect'});
+    hoverRect.addEventListener('mousemove', (e)=> showTip(tipHtml(), e.clientX, e.clientY));
+    hoverRect.addEventListener('mouseleave', hideTip);
+    g.appendChild(hoverRect);
+
+    const labelRow = document.createElement('div');
+    labelRow.className = 'tl-label' + (archived ? ' archived' : '');
+    labelRow.style.height = rowH + 'px';
+    labelRow.textContent = name;
+    labelRow.addEventListener('mousemove', (e)=> showTip(tipHtml(), e.clientX, e.clientY));
+    labelRow.addEventListener('mouseleave', hideTip);
+    labelsEl.appendChild(labelRow);
+  });
+
+  container.appendChild(svg);
+})();
+
+/* ---------------- LEFT YEAR RAIL: month-by-month commit histogram + individual event markers, scroll-synced ---------------- */
+(function(){
+  const track = document.getElementById('rail-track');
+  const RAIL_MIN = 2013, RAIL_MAX = 2026.75;
+  function railPct(dec){ return Math.max(0, Math.min(100, (dec-RAIL_MIN)/(RAIL_MAX-RAIL_MIN)*100)); }
+  function toDec(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    return y + ((m||1)-1)/12 + (d||15)/365;
+  }
+  function ymToDec(ym){ const [y,m] = ym.split('-').map(Number); return y + (m-1)/12; }
+
+  const yearSections = Array.from(document.querySelectorAll('article [data-year]'));
+  const eventCards = Array.from(document.querySelectorAll('.event-card[data-idx]'));
+  const railEl = document.getElementById('year-rail');
+  const modeSections = Array.from(document.querySelectorAll('section[data-rail-mode]'));
+
+  const PNAMES = ['zolij','Márki-Zay Ferenc','Laszlo Rafael','Tamas Kiss','Bence Orosz','Pomucz Tamás','Wendl Lili'];
+  const maxMonthCount = Math.max(...MONTHLY.map(d=>d[1]));
+
+  const monthRows = MONTHLY.map(([ym, total, dist, other], idx)=>{
+    const row = document.createElement('div');
+    row.className = 'rail-month-row';
+    row.style.top = railPct(ymToDec(ym)) + '%';
+    row.style.transitionDelay = Math.min(idx*2, 400) + 'ms';
+    row.dataset.ym = ym;
+
+    const bar = document.createElement('div');
+    bar.className = 'rail-month-bar';
+    bar.style.width = (total>0 ? Math.max(3, Math.sqrt(total/maxMonthCount)*100) : 0) + '%';
+    dist.forEach((val, gi)=>{
+      if(val<=0) return;
+      const seg = document.createElement('span');
+      seg.style.flex = val;
+      seg.style.background = gi < 7 ? `var(${SERIES[gi]})` : 'var(--other)';
+      bar.appendChild(seg);
+    });
+    row.appendChild(bar);
+
+    row.addEventListener('mousemove', (e)=>{
+      const named = dist.slice(0,7).map((v,gi)=> v>0 ? [PNAMES[gi], v] : null).filter(Boolean);
+      const all = named.concat(other).sort((a,b)=> b[1]-a[1]);
+      const lines = all.map(([n,v])=> `${n}: ${v}`);
+      showTip(`<b>${ym}</b><br>${total} commit${lines.length?'<br><span style="opacity:.75">'+lines.join('<br>')+'</span>':''}`, e.clientX, e.clientY);
+    });
+    row.addEventListener('mouseleave', hideTip);
+    row.addEventListener('click', ()=>{
+      const dec = ymToDec(ym);
+      let target = null, bestD = Infinity;
+      yearSections.forEach(el=>{
+        const d = Math.abs(+el.dataset.year - dec);
+        if(d < bestD){ bestD = d; target = el; }
+      });
+      if(target) target.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+
+    track.appendChild(row);
+    return row;
+  });
+
+  const yearTicks = [];
+  MONTHLY.forEach(([ym])=>{
+    const [y, m] = ym.split('-');
+    if(m !== '01' && ym !== MONTHLY[0][0]) return;
+    const tick = document.createElement('div');
+    tick.className = 'rail-year-tick';
+    tick.style.top = railPct(ymToDec(ym)) + '%';
+    tick.textContent = y;
+    tick.dataset.year = y;
+    track.appendChild(tick);
+    const grid = document.createElement('div');
+    grid.className = 'rail-year-gridline';
+    grid.style.top = railPct(ymToDec(ym)) + '%';
+    track.appendChild(grid);
+    yearTicks.push(tick);
+  });
+
+  const eventDots = INITIATIVES.map((ev, i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'rail-event-dot';
+    dot.style.top = railPct(toDec(ev.start)) + '%';
+    dot.addEventListener('mousemove', (e)=>{
+      const range = ev.start===ev.end ? ev.start : `${ev.start} → ${ev.end}`;
+      showTip(`<b>${ev.name}</b><br>${range}<br><span style="opacity:.75">${ev.people}</span>`, e.clientX, e.clientY);
+    });
+    dot.addEventListener('mouseleave', hideTip);
+    dot.addEventListener('click', ()=>{
+      const el = document.getElementById('ev-'+i);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+    track.appendChild(dot);
+    return dot;
+  });
+
+  const eventLabel = document.createElement('div');
+  eventLabel.className = 'rail-event-label';
+  track.appendChild(eventLabel);
+
+  function updateRail(){
+    const refY = window.innerHeight * 0.3;
+
+    let mode = 'hidden', activeSectionId = null;
+    modeSections.forEach(sec=>{
+      if(sec.getBoundingClientRect().top <= refY){ mode = sec.dataset.railMode; activeSectionId = sec.id; }
+    });
+    railEl.classList.remove('mode-hidden','mode-basic','mode-full');
+    railEl.classList.add('mode-'+mode);
+
+    // year ticks only mean anything inside the chronological Sztori section
+    let activeYear = null;
+    if(activeSectionId === 'sec-story'){
+      yearSections.forEach(el=>{
+        if(el.getBoundingClientRect().top <= refY) activeYear = +el.dataset.year;
+      });
+    }
+    const activeYearInt = activeYear != null ? Math.max(2013, Math.min(2026, Math.round(activeYear))) : null;
+    yearTicks.forEach(t=> t.classList.toggle('active', activeYearInt != null && +t.dataset.year === activeYearInt));
+
+    let activeIdx = null;
+    eventCards.forEach(el=>{
+      if(el.getBoundingClientRect().top <= refY) activeIdx = +el.dataset.idx;
+    });
+    eventDots.forEach((dot,i)=> dot.classList.toggle('active', i===activeIdx));
+    eventCards.forEach(el=> el.classList.toggle('active', +el.dataset.idx === activeIdx));
+    if(activeIdx != null){
+      eventLabel.textContent = INITIATIVES[activeIdx].name;
+      eventLabel.style.top = eventDots[activeIdx].style.top;
+      eventLabel.classList.add('show');
+    } else {
+      eventLabel.classList.remove('show');
+    }
+
+    // month-row highlight: track the active initiative while in Fejlesztések, else the active year while in Sztori
+    let monthSource = null;
+    if(activeSectionId === 'sec-dev' && activeIdx != null) monthSource = toDec(INITIATIVES[activeIdx].start);
+    else if(activeSectionId === 'sec-story' && activeYear != null) monthSource = activeYear;
+
+    if(monthSource != null){
+      let nearestIdx = 0, bestD = Infinity;
+      MONTHLY.forEach((m,i)=>{
+        const d = Math.abs(ymToDec(m[0]) - monthSource);
+        if(d < bestD){ bestD = d; nearestIdx = i; }
+      });
+      monthRows.forEach((r,i)=> r.classList.toggle('active', i===nearestIdx));
+    } else {
+      monthRows.forEach(r=> r.classList.remove('active'));
+    }
+  }
+  window.addEventListener('scroll', ()=> requestAnimationFrame(updateRail));
+  updateRail();
+})();
+
+/* ---------------- interactive architecture diagram tabs ---------------- */
+function showDiagram(idx){
+  document.querySelectorAll('.diagram-panel').forEach((p,i)=> p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.diagram-tab').forEach((b,i)=> b.classList.toggle('active', i===idx));
+}
+
+/* ---------------- photo lightbox ---------------- */
+(function(){
+  const shots = Array.from(document.querySelectorAll('article img:not(.inline-small)'));
+  if(!shots.length) return;
+
+  const gallery = shots.map(img=>{
+    const capEl = img.nextElementSibling;
+    const caption = (capEl && capEl.classList.contains('img-cap')) ? capEl.textContent : img.alt;
+    return {src: img.currentSrc || img.src, caption};
+  });
+
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbCaption = document.getElementById('lightbox-caption');
+  const lbCounter = document.getElementById('lightbox-counter');
+  let current = 0;
+
+  function render(){
+    const item = gallery[current];
+    lbImg.src = item.src;
+    lbImg.alt = item.caption;
+    lbCaption.textContent = item.caption;
+    lbCounter.textContent = `${current+1} / ${gallery.length}`;
+  }
+  function open(idx){ current = idx; render(); lb.classList.add('open'); }
+  function close(){ lb.classList.remove('open'); }
+  function prev(){ current = (current - 1 + gallery.length) % gallery.length; render(); }
+  function next(){ current = (current + 1) % gallery.length; render(); }
+
+  shots.forEach((img,i)=> img.addEventListener('click', ()=> open(i)));
+  lb.querySelector('.lightbox-close').addEventListener('click', close);
+  lb.querySelector('.lightbox-arrow.prev').addEventListener('click', prev);
+  lb.querySelector('.lightbox-arrow.next').addEventListener('click', next);
+  lb.addEventListener('click', (e)=>{ if(e.target === lb) close(); });
+  window.addEventListener('keydown', (e)=>{
+    if(!lb.classList.contains('open')) return;
+    if(e.key === 'Escape') close();
+    else if(e.key === 'ArrowLeft') prev();
+    else if(e.key === 'ArrowRight') next();
+  });
+})();
+</script>
+<script>
+(function(){
+
+  const locEsc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const locFmt = n => n.toLocaleString('hu-HU');
+
+  LOC_ROWS.forEach(r=>{
+    const act = r.survives_active || 0, arch = r.survives_archived || 0;
+    if(r.added === 0){ r.activePct = null; r.archivedPct = null; r.gonePct = null; return; }
+    r.activePct = Math.round(act/r.added*1000)/10;
+    r.archivedPct = Math.round(arch/r.added*1000)/10;
+    r.gonePct = Math.max(0, Math.round((100 - r.activePct - r.archivedPct)*10)/10);
+  });
+
+  function renderLocStats(){
+    const totalAdded = LOC_ROWS.reduce((a,r)=>a+r.added,0);
+    const totalRemoved = LOC_ROWS.reduce((a,r)=>a+r.removed,0);
+    const totalNet = LOC_ROWS.reduce((a,r)=>a+r.net,0);
+    const totalActive = LOC_ROWS.reduce((a,r)=>a+(r.survives_active||0),0);
+    const totalArchived = LOC_ROWS.reduce((a,r)=>a+(r.survives_archived||0),0);
+    const archivedShare = totalAdded ? Math.round(totalArchived/totalAdded*1000)/10 : 0;
+    const tiles = [
+      {value: locFmt(totalAdded), label:'sor hozzáadva összesen', cls:''},
+      {value: locFmt(totalRemoved), label:'sor törölve összesen', cls:''},
+      {value: locFmt(totalNet), label:'nettó sor (ma kb. ennyi van)', cls:''},
+      {value: locFmt(totalActive), label:'ma is él, aktív szolgáltatásban', cls:''},
+      {value: locFmt(totalArchived), label:`csak archivált szolgáltatásban (a valaha írt sorok ${archivedShare}%-a)`, cls:' dead-tile'},
+    ];
+    document.getElementById('loc-stat-row').innerHTML = tiles.map(t=>
+      `<div class="stat-tile${t.cls}"><div class="value">${t.value}</div><div class="label">${t.label}</div></div>`
+    ).join('');
+  }
+
+  let locSortKey = 'net', locSortDir = -1;
+
+  function renderLocTable(){
+    const rows = [...LOC_ROWS].sort((a,b)=>{
+      let av = a[locSortKey], bv = b[locSortKey];
+      if(locSortKey === 'name') return locSortDir * String(av).localeCompare(String(bv), 'hu');
+      if(av == null) av = -Infinity;
+      if(bv == null) bv = -Infinity;
+      return locSortDir * (av - bv);
+    });
+    document.getElementById('loc-tbody').innerHTML = rows.map(r=>{
+      const shareCell = r.activePct == null
+        ? `<span class="na">–</span>`
+        : `<div class="pctcell" data-tip="${locEsc(`Aktív: ${r.activePct}% · Eltűnt (felülírva/törölve): ${r.gonePct}% · Archivált: ${r.archivedPct}%`)}">
+             <div class="bar-track">
+               <span class="seg-active" style="width:${r.activePct}%"></span>
+               <span class="seg-gone" style="width:${r.gonePct}%"></span>
+               <span class="seg-archived" style="width:${r.archivedPct}%"></span>
+             </div>
+           </div>`;
+      const negA = r.net < 0 ? ' neg' : '';
+      return `<tr>
+        <td>${locEsc(r.name)}</td>
+        <td>${locFmt(r.commits)}</td>
+        <td>${locFmt(r.added)}</td>
+        <td>${locFmt(r.removed)}</td>
+        <td class="archived-col">${locFmt(r.survives_archived||0)}</td>
+        <td class="${negA}">${locFmt(r.net)}</td>
+        <td>${locFmt(r.survives_active||0)}</td>
+        <td>${shareCell}</td>
+      </tr>`;
+    }).join('');
+
+    document.querySelectorAll('#loc-table thead th').forEach(th=>{
+      th.classList.toggle('sorted', th.dataset.key === locSortKey);
+      th.querySelector('.arrow')?.remove();
+      if(th.dataset.key === locSortKey){
+        const arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = locSortDir === 1 ? '▲' : '▼';
+        th.appendChild(arrow);
+      }
+    });
+
+    document.querySelectorAll('#loc-tbody .pctcell[data-tip]').forEach(el=>{
+      el.addEventListener('mouseenter', e=> showTip(el.dataset.tip, e.clientX, e.clientY));
+      el.addEventListener('mousemove', e=> showTip(el.dataset.tip, e.clientX, e.clientY));
+      el.addEventListener('mouseleave', hideTip);
+    });
+  }
+
+  document.querySelectorAll('#loc-table thead th').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if(key === locSortKey){ locSortDir *= -1; }
+      else { locSortKey = key; locSortDir = key === 'name' ? 1 : -1; }
+      renderLocTable();
+    });
+  });
+
+  renderLocStats();
+  renderLocTable();
+})();
+</script>
+<script src="assets/lib/drawio-viewer.min.js"></script>
+
+</body>
+</html>

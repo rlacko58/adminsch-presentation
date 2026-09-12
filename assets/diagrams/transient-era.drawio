@@ -1,0 +1,40 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="2019 — vegyes rendszer" id="transient-era">
+    <mxGraphModel dx="800" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="client" value="Kollégista böngészője" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f4;strokeColor=#9b9b93;fontColor=#1a1a19;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="325" y="30" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy" value="Apache Proxy&#10;(útvonal-alapú routing)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2a78d6;fontColor=#1a1a19;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="325" y="130" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="legacy" value="Legacy AdminSCH&#10;(PHP, 2013 óta)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde3d3;strokeColor=#eb6834;fontColor=#1a1a19;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="270" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="transient" value="transient-server&#10;(Django, 2019)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f2e6;strokeColor=#1baf7a;fontColor=#1a1a19;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="270" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="legacy-note" value="Minden útvonal, ami nincs&#10;kifejezetten átirányítva" style="text;html=1;align=center;verticalAlign=top;fontSize=11;fontColor=#7a7970;" vertex="1" parent="1">
+          <mxGeometry x="100" y="360" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="transient-note" value="Fokozatosan vette át oldalanként:&#10;hálózati regisztráció, wifi, signup,&#10;profil, jelszó-csere, email-oldal" style="text;html=1;align=center;verticalAlign=top;fontSize=11;fontColor=#7a7970;" vertex="1" parent="1">
+          <mxGeometry x="530" y="360" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="archived-note" value="Ma már archiválva — a react-app&#10;fokozatosan váltotta le 2022-től" style="text;html=1;align=center;verticalAlign=top;fontSize=11;fontColor=#7a7970;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="530" y="415" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#52514e;" edge="1" parent="1" source="client" target="proxy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="/  (alapértelmezett)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#eb6834;fontColor=#eb6834;fontStyle=1;" edge="1" parent="1" source="proxy" target="legacy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="/old/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1baf7a;fontColor=#1baf7a;fontStyle=1;" edge="1" parent="1" source="proxy" target="transient">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

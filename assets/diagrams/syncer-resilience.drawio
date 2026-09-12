@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Syncer-architektúra — ellenálló hálózati automatika" id="syncer-resilience">
+    <mxGraphModel dx="800" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="adminsch" value="AdminSCH API&#10;(igazság forrása: ki melyik VLAN-ban van, milyen MAC-cel)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2a78d6;fontColor=#1a1a19;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="30" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dnssync" value="sch-dns-sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf3d3;strokeColor=#eda100;fontColor=#1a1a19;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="150" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="radiussync" value="sch-radius-sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf3d3;strokeColor=#eda100;fontColor=#1a1a19;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="150" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="dhcpsync" value="sch-dhcp-sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf3d3;strokeColor=#eda100;fontColor=#1a1a19;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="150" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="cron-note" value="mindhárom: cron, 2–5 percenként lekérdez" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#7a7970;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="105" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bindconf" value="BIND9 zónafájl&#10;(generált)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f4;strokeColor=#9b9b93;fontColor=#1a1a19;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="245" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pgdb" value="Postgres&#10;(MAC ↔ VLAN, generált)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f4;strokeColor=#9b9b93;fontColor=#1a1a19;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="360" y="245" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dhcpconf" value="isc-dhcp-server config&#10;(validálva, mielőtt élesbe kerül)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f4;strokeColor=#9b9b93;fontColor=#1a1a19;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="640" y="245" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bind" value="BIND9&#10;DNS szerver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f2e6;strokeColor=#1baf7a;fontColor=#1a1a19;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="335" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="radius" value="FreeRADIUS&#10;szerver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f2e6;strokeColor=#1baf7a;fontColor=#1a1a19;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="335" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="dhcp" value="ISC DHCP&#10;szerver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f2e6;strokeColor=#1baf7a;fontColor=#1a1a19;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="335" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="resilience" value="Ha az AdminSCH leáll: a DNS, RADIUS és DHCP szerverek tovább szolgálnak ki kéréseket az utoljára szinkronizált adatokkal — csak új változás nem jut át, amíg a rendszer vissza nem áll." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5f2e6;strokeColor=#1baf7a;fontColor=#1a1a19;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="140" y="440" width="620" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2a78d6;dashed=1;" edge="1" parent="1" source="adminsch" target="dnssync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2a78d6;dashed=1;" edge="1" parent="1" source="adminsch" target="radiussync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2a78d6;dashed=1;" edge="1" parent="1" source="adminsch" target="dhcpsync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#eda100;" edge="1" parent="1" source="dnssync" target="bindconf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#eda100;" edge="1" parent="1" source="radiussync" target="pgdb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#eda100;" edge="1" parent="1" source="dhcpsync" target="dhcpconf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1baf7a;" edge="1" parent="1" source="bindconf" target="bind">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1baf7a;" edge="1" parent="1" source="pgdb" target="radius">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1baf7a;" edge="1" parent="1" source="dhcpconf" target="dhcp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
