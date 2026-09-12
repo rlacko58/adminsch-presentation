@@ -59,8 +59,6 @@ text('Rólam', 'Rafael László — Lackó / rlacko', 'KSZK 2018 óta', [
   'VMWare Rendszergazda · Devteam körvezető · Főmentor · K8S Rendszergazda',
   '2022–2026: Dánia (Devoteam → Trackman) · most: Bitrise',
 ]);
-image('assets/adminsch-draft-1.png');
-image('assets/adminsch-draft-2.png');
 
 text('Legalább 500 új diák.', 'Minden évben.', 'A kihívás');
 image('assets/kszk-2025.png');
@@ -82,6 +80,9 @@ commitlog([
 
 text('2019', 'Márki-Zay Feri, Kiss Tomi, Pünkösd Marcell — mikroszolgáltatások', null); atYear(2019.5);
 image('assets/arch-v1.png'); atYear(2019.6);
+
+image('assets/adminsch-draft-1.png');
+image('assets/adminsch-draft-2.png');
 
 text('2020–2021', 'a projekt lassú halála', null); atYear(2020.2);
 statgrid([{ big: '727', small: '2020' }, { big: '92', small: '2021' }]); atYear(2020.5);
