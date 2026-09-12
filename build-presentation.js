@@ -53,7 +53,7 @@ const atYear = (y) => { S[S.length - 1].year = y; };
 let railStartIndex = 0;
 const railStartsHere = () => { railStartIndex = S.length - 1; };
 
-title('AdminSCH', 'Több minden — 13 év története', 'A teljes anyag itt is elérhető: ', 'adminsch.lasz.io');
+title('AdminSCH', 'Több mint 13 év története', 'A teljes anyag itt is elérhető: ', 'adminsch.lasz.io');
 
 text('Rólam', 'Rafael László — Lackó / rlacko', 'KSZK 2018 óta', [
   'VMWare Rendszergazda · Devteam körvezető · Főmentor · K8S Rendszergazda',
@@ -205,12 +205,18 @@ const page = `<!doctype html>
     --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
   }
   @media (prefers-color-scheme: dark){
-    :root{
+    :root:not([data-theme="light"]){
       color-scheme: dark;
       --page:#0d0d0d; --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7;
       --text-muted:#898781; --gridline:#2c2c2a; --border:rgba(255,255,255,0.10); --accent:#3987e5;
       --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
     }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7;
+    --text-muted:#898781; --gridline:#2c2c2a; --border:rgba(255,255,255,0.10); --accent:#3987e5;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
   }
   *{ box-sizing:border-box; }
   html,body{ height:100%; margin:0; overflow:hidden; background:var(--page); color:var(--text-primary);
@@ -232,6 +238,13 @@ const page = `<!doctype html>
     z-index:25; opacity:.6; text-decoration:none; transition:opacity .15s ease;
   }
   #backlink:hover{ opacity:1; }
+
+  #themeBtn{
+    position:fixed; top:18px; right:26px; z-index:25; font-size:20px;
+    background:none; border:none; cursor:pointer; opacity:.6; transition:opacity .15s ease;
+    line-height:1; padding:4px;
+  }
+  #themeBtn:hover{ opacity:1; }
 
   /* closing slide: pure CSS (flex-wrap + clamp + %-based keyframe), no fixed
      pixel sizing, so the credits roll reflows correctly on any resize/screen
@@ -345,6 +358,24 @@ const page = `<!doctype html>
 </head>
 <body>
 <a id="backlink" href="index.html">← Vissza a főoldalra</a>
+<button id="themeBtn" aria-label="Téma váltása"></button>
+<script>
+(function(){
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t){
+    if(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('adminsch-theme', t); }
+    else{ document.documentElement.removeAttribute('data-theme'); localStorage.removeItem('adminsch-theme'); }
+    const isDark = t ? t==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    themeBtn.textContent = isDark ? '☀️' : '🌙';
+  }
+  applyTheme(localStorage.getItem('adminsch-theme') || null);
+  themeBtn.addEventListener('click', ()=>{
+    const cur = document.documentElement.getAttribute('data-theme');
+    const isDarkNow = cur ? cur==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(isDarkNow ? 'light' : 'dark');
+  });
+})();
+</script>
 <div id="deck">
 ${slidesHtml}
 </div>
