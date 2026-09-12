@@ -218,10 +218,13 @@ const page = `<!doctype html>
     --text-muted:#898781; --gridline:#2c2c2a; --border:rgba(255,255,255,0.10); --accent:#3987e5;
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
   }
-  *{ box-sizing:border-box; }
+  /* #deck covers the full viewport as one big click target (tap-to-advance);
+     mobile browsers paint a tap-highlight flash over whatever was tapped,
+     which here means the entire screen flashing gray on every tap. */
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ height:100%; margin:0; overflow:hidden; background:var(--page); color:var(--text-primary);
     font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
-  #deck{ position:relative; width:100vw; height:100vh; cursor:pointer; }
+  #deck{ position:relative; width:100vw; height:100vh; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; }
   .slide{
     position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; padding:6vh 8vw;
@@ -393,7 +396,7 @@ ${slidesHtml}
   <svg id="rail-svg"></svg>
 </div>
 <div id="hud"></div>
-<div id="navhint">click / → tovább · ← vissza · f teljes képernyő</div>
+<div id="navhint">jobb oldal / → tovább · bal oldal / ← vissza · f teljes képernyő</div>
 <div class="tooltip" id="tooltip"></div>
 <script src="data.js"></script>
 <script>
@@ -436,7 +439,9 @@ ${slidesHtml}
   function next(){ if(i < slides.length-1){ i++; render(); } }
   function prev(){ if(i > 0){ i--; render(); } }
 
-  document.getElementById('deck').addEventListener('click', next);
+  document.getElementById('deck').addEventListener('click', (e)=>{
+    if(e.clientX < window.innerWidth / 2) prev(); else next();
+  });
   window.addEventListener('keydown', (e)=>{
     if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); next(); }
     else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){ e.preventDefault(); prev(); }
