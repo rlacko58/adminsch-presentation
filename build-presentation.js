@@ -174,11 +174,11 @@ function renderSlide(s, i) {
   if (s.type === 'closing') {
     const names = s.names || [];
     const chips = names.map((n, ni) => `<span class="name-chip s${(ni % 8) + 1}">${esc(n)}</span>`).join('');
-    // the track holds the chip grid twice back-to-back so the -50% keyframe
+    // the track holds the chip grid 3x back-to-back so the -33.3333% keyframe
     // loops seamlessly (see the CSS comment above .name-scroll)
     const dur = Math.max(30, Math.round(names.length * 0.8));
     const scroll = names.length ? `<div class="name-scroll"><div class="name-scroll-track" style="animation-duration:${dur}s">
-      <div class="name-wall">${chips}</div><div class="name-wall">${chips}</div>
+      <div class="name-wall">${chips}</div><div class="name-wall">${chips}</div><div class="name-wall">${chips}</div>
     </div></div>` : '';
     return `<section class="slide slide-closing"><h1>${esc(s.h)}</h1><p class="sub">${esc(s.sub || '')}</p>${scroll}</section>`;
   }
@@ -248,18 +248,22 @@ const page = `<!doctype html>
 
   /* closing slide: pure CSS (flex-wrap + clamp + %-based keyframe), no fixed
      pixel sizing, so the credits roll reflows correctly on any resize/screen
-     size without needing JS to redraw it. The name list is duplicated once in
-     the HTML and the track scrolls exactly -50% — since both halves are
-     identical, that point looks identical to 0% and the loop is seamless. */
+     size without needing JS to redraw it. The name list is tripled in the HTML
+     and the track scrolls exactly -33.3333% — since all three copies are
+     identical, that point looks identical to 0% and the loop is seamless.
+     height is capped at content height (JS-measured, see below) rather than
+     a fixed vh: on wide/fullscreen screens the chips wrap into fewer rows, so
+     a fixed vh box would be taller than the content and show blank space
+     before the next copy scrolls into view. */
   .slide-closing{ padding:5vh 5vw 166px; }
   .slide-closing h1{ font-size:clamp(40px,6vw,84px); margin:0; font-weight:800; letter-spacing:-0.02em; }
   .slide-closing .sub{ font-size:clamp(16px,2vw,26px); color:var(--text-secondary); margin-top:12px; }
   .name-scroll{
-    width:94vw; height:46vh; margin-top:3vh; overflow:hidden; contain:strict;
+    width:94vw; height:min(46vh, var(--name-wall-h, 46vh)); margin-top:3vh; overflow:hidden; contain:strict;
     -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
     mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
   }
-  /* gap here (not padding on .name-wall) keeps the seam between the two
+  /* gap here (not padding on .name-wall) keeps the seam between the
      duplicated copies at the same rhythm as every other row. will-change
      promotes the track to its own GPU layer so the scroll doesn't force a
      repaint of the mask / rest of the page on every frame. duration is set
@@ -267,7 +271,7 @@ const page = `<!doctype html>
      how ever many names there are. */
   .name-scroll-track{ display:flex; flex-direction:column; gap:8px; will-change:transform; animation-name:name-scroll; animation-timing-function:linear; animation-iteration-count:infinite; }
   .name-wall{ display:flex; flex-wrap:wrap; gap:8px 10px; justify-content:center; }
-  @keyframes name-scroll{ from{ transform:translateY(0); } to{ transform:translateY(-50%); } }
+  @keyframes name-scroll{ from{ transform:translateY(0); } to{ transform:translateY(-33.3333%); } }
   .name-chip{
     font-size:clamp(11px,1.05vw,14px); padding:5px 13px; border-radius:999px;
     border:1px solid currentColor; opacity:.8; white-space:nowrap;
@@ -399,6 +403,14 @@ ${slidesHtml}
     drawChartIfNeeded(slides[i]);
     updateRailMarker(slides[i]);
     bottomRail.classList.toggle('show', i >= RAIL_START);
+    sizeNameScroll();
+  }
+
+  function sizeNameScroll(){
+    const wall = document.querySelector('.slide-closing.active .name-wall');
+    const scroll = document.querySelector('.slide-closing.active .name-scroll');
+    if(!wall || !scroll) return;
+    scroll.style.setProperty('--name-wall-h', wall.getBoundingClientRect().height + 'px');
   }
 
   function next(){ if(i < slides.length-1){ i++; render(); } }
@@ -604,8 +616,9 @@ ${slidesHtml}
   let resizeTimer;
   window.addEventListener('resize', ()=>{
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(()=>{ buildRail(); updateRailMarker(slides[i]); }, 150);
+    resizeTimer = setTimeout(()=>{ buildRail(); updateRailMarker(slides[i]); sizeNameScroll(); }, 150);
   });
+  document.addEventListener('fullscreenchange', ()=> setTimeout(sizeNameScroll, 50));
 })();
 </script>
 </body>
