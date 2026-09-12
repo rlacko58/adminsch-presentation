@@ -69,7 +69,7 @@ text('2013', 'amit örököltem', null); atYear(2013.0);
 image('assets/admintools.png', 'Admintools, 2000-es évek'); atYear(2013.0);
 text('Zolij', '2013. február 11.', null); atYear(2013.1); railStartsHere();
 image('assets/adminsch-old-error.png'); atYear(2013.15);
-statgrid([{ big: '1235', small: 'commit' }, { big: 'évekig', small: 'gyakorlatilag egyedül' }]); atYear(2016);
+statgrid([{ big: '1235', small: 'commit' }, { big: '2013–2018', small: 'évekig gyakorlatilag egyedül' }]); atYear(2016);
 
 text('2015–2019', 'az újraírási kísérletek', null); atYear(2015.2);
 commitlog([
