@@ -96,6 +96,7 @@
     font-size:13px; color:var(--text-secondary);
   }
   #topbar .toc-menu a:hover{ background:var(--gridline); color:var(--text-primary); }
+  #topbar .toc-menu a.toc-h3{ padding-left:22px; font-size:12px; color:var(--text-muted); }
 
   .page-shell{
     max-width: 1500px; margin: 0 auto;
@@ -472,6 +473,7 @@
   }
   #toc-rail a:hover{ color:var(--text-primary); }
   #toc-rail a.active{ color:var(--text-primary); font-weight:700; }
+  #toc-rail a.toc-h3{ padding-left:14px; font-size:11.5px; }
   @media (min-width: 1500px){
     #toc-rail{ display:block; }
     #topbar .toc-wrap{ display:none; }
@@ -486,13 +488,29 @@
     <div class="toc-wrap">
       <button id="tocBtn" aria-haspopup="true" aria-expanded="false">Tartalom ▾</button>
       <div id="tocMenu" class="toc-menu" role="menu">
-        <a href="#sec-about" data-target="sec-about" role="menuitem">Rólam</a>
-        <a href="#sec-intro" data-target="sec-intro" role="menuitem">Intro</a>
-        <a href="#sec-story" data-target="sec-story" role="menuitem">Sztori és szakma</a>
-        <a href="#sec-architecture" data-target="sec-architecture" role="menuitem">Architektúra</a>
-        <a href="#sec-dev" data-target="sec-dev" role="menuitem">Fejlesztések és statisztikák</a>
-        <a href="#sec-thanks" data-target="sec-thanks" role="menuitem">Köszönet</a>
-      </div>
+  <a role="menuitem" href="#sec-about" data-target="sec-about">Rólam</a>
+  <a role="menuitem" href="#sec-intro" data-target="sec-intro">Intro</a>
+  <a role="menuitem" href="#sec-story" data-target="sec-story">Sztori és szakma</a>
+  <a role="menuitem" class="toc-h3" href="#h3-ugorjunk-vissza-az-idovonal" data-target="h3-ugorjunk-vissza-az-idovonal">Ugorjunk vissza — az idővonal</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2013-amit-orokoltem" data-target="h3-2013-amit-orokoltem">2013 — amit örököltem</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2015-2019-az-ujrairasi-kiserletek" data-target="h3-2015-2019-az-ujrairasi-kiserletek">2015–2019 — az újraírási kísérletek</a>
+  <a role="menuitem" class="toc-h3" href="#h3-es-akkor-kanyarodjunk-vissza" data-target="h3-es-akkor-kanyarodjunk-vissza">És akkor kanyarodjunk vissza</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2020-2021-a-projekt-lassu-halala" data-target="h3-2020-2021-a-projekt-lassu-halala">2020–2021 — A projekt lassú halála</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2021-akkor-vege" data-target="h3-2021-akkor-vege">2021 — Akkor vége?</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2022-junius-25-adminsch-code" data-target="h3-2022-junius-25-adminsch-code">2022. június 25. — AdminSCH Code</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2022-augusztus-1-az-atallas" data-target="h3-2022-augusztus-1-az-atallas">2022. Augusztus 1 - Az átállás</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2022-masodik-feletol-2023-vegeig" data-target="h3-2022-masodik-feletol-2023-vegeig">2022 második felétől 2023 végéig</a>
+  <a role="menuitem" class="toc-h3" href="#h3-2024-2026-a-stafetabot" data-target="h3-2024-2026-a-stafetabot">2024–2026 — a stafétabot</a>
+  <a role="menuitem" href="#sec-architecture" data-target="sec-architecture">Architektúra</a>
+  <a role="menuitem" class="toc-h3" href="#h3-architektura-harom-allapotban" data-target="h3-architektura-harom-allapotban">Architektúra három állapotban</a>
+  <a role="menuitem" class="toc-h3" href="#h3-mi-epult-mikor-diohejban" data-target="h3-mi-epult-mikor-diohejban">Mi épült mikor — dióhéjban</a>
+  <a role="menuitem" class="toc-h3" href="#h3-amit-archivaltunk" data-target="h3-amit-archivaltunk">Amit archiváltunk</a>
+  <a role="menuitem" href="#sec-dev" data-target="sec-dev">Fejlesztések és statisztikák</a>
+  <a role="menuitem" class="toc-h3" href="#h3-kezdemenyezesek-idorendben" data-target="h3-kezdemenyezesek-idorendben">Kezdeményezések időrendben</a>
+  <a role="menuitem" class="toc-h3" href="#h3-release-tortenet" data-target="h3-release-tortenet">Release-történet</a>
+  <a role="menuitem" class="toc-h3" href="#h3-kie-volt-a-stafeta" data-target="h3-kie-volt-a-stafeta">Kié volt a staféta</a>
+  <a role="menuitem" href="#sec-thanks" data-target="sec-thanks">Köszönet</a>
+</div>
     </div>
     <button id="themeBtn" title="Sötét / világos mód">🌙</button>
     <a href="presentation.html">Diavetítés megnyitása ▶</a>
@@ -566,7 +584,7 @@ A KSZK tevékenysége két nagy területre bontható: az üzemeltetésre és a f
 
 <h2>Sztori és szakma</h2>
 
-<h3>Ugorjunk vissza — az idővonal</h3>
+<h3 id="h3-ugorjunk-vissza-az-idovonal">Ugorjunk vissza — az idővonal</h3>
 
 <p>Mielőtt még nagyon beleugranánk a történetbe, nézzünk meg hol is helyezkedik el a fenti <span data-stat="totalRepos">74</span> repó. Hogy legyen apróbb képünk mibe is tekintünk bele. Itt láthatjuk az első commit-tól az utolsóig — indulás szerint rendezve, kategória szerint színezve. A szürke sávok már az archiváltak.</p>
 
@@ -575,7 +593,7 @@ A KSZK tevékenysége két nagy területre bontható: az üzemeltetésre és a f
     <div class="timeline-scroll"><div id="chart-timeline-labels"></div><div id="chart-timeline"></div></div>
   </div>
 
-<h3 data-year="2013.1">2013 — amit örököltem</h3>
+<h3 id="h3-2013-amit-orokoltem" data-year="2013.1">2013 — amit örököltem</h3>
 
 <span class="year-anchor" data-year="2013.1"></span>
 
@@ -605,7 +623,7 @@ A KSZK tevékenysége két nagy területre bontható: az üzemeltetésre és a f
 
 <p>És igazából ezzel az oldallal először nem is volt baj. De aztán hamar kihullottak a csontvázak, és évekre előre rémálmot okozott többeknek a KSZK-ban. Viszont kiemelném, hogy az akkori ígéretét igenis beváltotta a rendszer, és elképesztően sok ötletet, megoldást emeltünk később át.</p>
 
-<h3 data-year="2015.2">2015–2019 — az újraírási kísérletek</h3>
+<h3 id="h3-2015-2019-az-ujrairasi-kiserletek" data-year="2015.2">2015–2019 — az újraírási kísérletek</h3>
 
 <span class="year-anchor" data-year="2015.1"></span>
 
@@ -663,7 +681,7 @@ A KSZK tevékenysége két nagy területre bontható: az üzemeltetésre és a f
 
 <p>De igazából én is csak rémtörténeteit hallottam ennek az időszaknak. Egy biztos, hogy valamit változtatni kellett és a srácok túl voltak terhelve.</p>
 
-<h3 data-year="2019.6">És akkor kanyarodjunk vissza</h3>
+<h3 id="h3-es-akkor-kanyarodjunk-vissza" data-year="2019.6">És akkor kanyarodjunk vissza</h3>
 
 <span class="year-anchor" data-year="2018.9"></span>
 
@@ -688,7 +706,7 @@ Egy cikket is írtunk a weboldalunkra erről: <a href="https://kszk.bme.hu/artic
 
 <p>Feri ekkoriban gyakorlatilag mentorom volt a projektben — egyik fő hajtóereje annak, hogy egyáltalán bele mertem vágni. Állati sok hülye kérdést tettem fel neki, az biztos, de sosem éreztette.</p>
 
-<h3 data-year="2020.2">2020–2021 — A projekt lassú halála</h3>
+<h3 id="h3-2020-2021-a-projekt-lassu-halala" data-year="2020.2">2020–2021 — A projekt lassú halála</h3>
 
 <p>Na de nem volt kész egyáltalán. Nagyon sok funkció bent ragadt a legacy megoldásban és sok nyitott kérdés maradt.</p>
 
@@ -712,7 +730,7 @@ Egy cikket is írtunk a weboldalunkra erről: <a href="https://kszk.bme.hu/artic
     <div id="chart-repos"></div>
   </div>
 
-<h3 data-year="2021.3">2021 — Akkor vége?</h3>
+<h3 id="h3-2021-akkor-vege" data-year="2021.3">2021 — Akkor vége?</h3>
 
 <p>Lehet, hogy az AdminSCH projekt nem kapott fókuszt, de körülötte sorban javítottunk meg mindent. A hálózat megbízhatóbbá vált, a szervereinket átalakítottuk, új hardvereket szereztünk, a virtualizációnk jobbá vált, a Kubernetes klaszterünket megjavítottuk (később szakdolgozat témámmá is vált) és igazából egy nagyon prémium Devops Suite™ -et alakítottunk ki. Szimplán minden más volt előtérben.</p>
 
@@ -730,7 +748,7 @@ Még mindig nem lehetett teljesen függetlenül dolgozni és nagyon kevés bels�
 
 <p>És ez az egész Hackathon egy hatalmas motivációt adott nekem a projektre. De hogyne adna, hiszen évek óta dolgoztam a többiekkel közösen AdminSCH körül mindenen és most láttam valamit ami minden eddigi munkánkat összefogja és elérhetővé teszi a Schönherz összes lakója számára. Végre nem az lesz a képe mindenkinek hogy mennyire használhatatlan és kidobott effort. Úgy éreztem, hogy nagyon közel vagyunk ahhoz, amit annó megálmodtunk. Innentől elkezdtem jobban beleásni magam, kipróbáltam dolgokat és összeraktam a React app kezdeti verzióját. Feri pedig a háttérből segített a backend service-ek átírásában, igazán JWT ready-vé tételével.</p>
 
-<h3 data-year="2022.48">2022. június 25. — AdminSCH Code</h3>
+<h3 id="h3-2022-junius-25-adminsch-code" data-year="2022.48">2022. június 25. — AdminSCH Code</h3>
 
 <span class="year-anchor" data-year="2022.6"></span>
 
@@ -770,7 +788,7 @@ Még mindig nem lehetett teljesen függetlenül dolgozni és nagyon kevés bels�
 <img src="assets/network-diagram.png" alt="A hálózati architektúra: RADIUS, DHCP, VLAN-service és a switchek" width="1180" height="1006">
   <p class="img-cap">A hálózati architektúra: RADIUS, DHCP, VLAN-service és a switchek</p>
 
-<h3>2022. Augusztus 1 - Az átállás</h3>
+<h3 id="h3-2022-augusztus-1-az-atallas">2022. Augusztus 1 - Az átállás</h3>
 
 <span class="year-anchor" data-year="2022.8"></span>
 
@@ -784,7 +802,7 @@ Még mindig nem lehetett teljesen függetlenül dolgozni és nagyon kevés bels�
 <img src="assets/adminsch_code_3_circle.png" alt="Beszélgetés hogy innen hova" width="1920" height="1440">
   <p class="img-cap">Beszélgetés hogy innen hova</p>
 
-<h3>2022 második felétől 2023 végéig</h3>
+<h3 id="h3-2022-masodik-feletol-2023-vegeig">2022 második felétől 2023 végéig</h3>
 
 <p>AdminSCH::Code Vol.3 -tól kezdve nem pihentem egy két hónapig. Szinte minden nap dolgoztam valami hiba javításán vagy valami kimaradt funkció behozásán. Külön köszönet ekkor mindenkinek, Tominak és Ferinek főleg, sokat segítettek ekkor.</p>
 
@@ -798,7 +816,7 @@ Befejeztem az <code>email-v3-service</code>-t, kihelyeztem élesbe. Összeraktam
 pedig összeraktam két dolgot. Egyrészt a <code>workflow-v2-service</code>-t ami már tudott kezelni egyes eseteket amik kimaradtak az
 eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend volt kszk-soknak. Eddigre már kifáradtam és nem akartam a frontendhez sokat nyúlni. Úgyhogy behúztam egy kész React Admin nevű megoldást egyes csak API-ból elérhető dolgok kezeléséhez.</p>
 
-<h3 data-year="2024.1">2024–2026 — a stafétabot</h3>
+<h3 id="h3-2024-2026-a-stafetabot" data-year="2024.1">2024–2026 — a stafétabot</h3>
 
 <span class="year-anchor" data-year="2023.1"></span>
 
@@ -830,7 +848,7 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
 
 <h2>Architektúra</h2>
 
-<h3>Architektúra három állapotban</h3>
+<h3 id="h3-architektura-harom-allapotban">Architektúra három állapotban</h3>
 
 <p>Ehhey még visszatérek. TODO:)</p>
 
@@ -844,7 +862,7 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
     <p class="chart-caption">Top 12 repó a nyers commit-szám szerint, a maradék 62 egy összesítő sávban</p>
   </div>
 
-<h3>Mi épült mikor — dióhéjban</h3>
+<h3 id="h3-mi-epult-mikor-diohejban">Mi épült mikor — dióhéjban</h3>
 
 <p>Ha valaki csak a funkciókra kíváncsi, íme az egész történet pár sorban:</p>
 
@@ -858,7 +876,7 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
 <li><strong>2023–2026:</strong> második nekifutás a 2022-es service-eknek (<code>email-v3</code>, <code>workflow-v2</code>); <strong>schaccreg</strong> — végre önkiszolgáló regisztráció; a NAT kezelése is megoldódik (<code>sch-natgw-sync</code>); <code>levlista-service</code> (levelezőlista-kezelés, döcögős újraindítással); vadonatúj <code>notification-service</code> és egy új generáció tovább viszi a fejlesztést.</li>
 </ul>
 
-<h3>Amit archiváltunk</h3>
+<h3 id="h3-amit-archivaltunk">Amit archiváltunk</h3>
 
 <p>34 repó — a mai 73-ból közel a fele — mára archiválva van a GitLabon: vagy leváltotta őket valami, vagy megoldottuk máshogy a problémát, amire épültek. Ezek nem hibák, csak lezárt fejezetek.</p>
 
@@ -876,7 +894,7 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
 
 <h2>Fejlesztések és statisztikák</h2>
 
-<h3>Kezdeményezések időrendben</h3>
+<h3 id="h3-kezdemenyezesek-idorendben">Kezdeményezések időrendben</h3>
 
 <p>A teljes commit történeten végigmenve ezek a konkrét, névvel azonosítható kezdeményezések rajzolódnak ki az elmúlt 13 évben:</p>
 
@@ -1216,7 +1234,7 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
     <p>Generikus értesítő-rendszer — email + Discord webhook.</p>
   </div>
 
-<h3>Release-történet</h3>
+<h3 id="h3-release-tortenet">Release-történet</h3>
 
 <p>A puszta commit-számokon túl a git tag-ek is mesélnek: 46 repóban összesen 992 valódi verziójelölés van 2019 és 2026 között.</p>
 
@@ -1239,7 +1257,7 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
 
 <hr>
 
-<h3>Kié volt a staféta</h3>
+<h3 id="h3-kie-volt-a-stafeta">Kié volt a staféta</h3>
 
 <p>Commitok évente közreműködőnként, 2013-tól — a hét legaktívabb ember névvel, a maradék 67 fő egy összesített sávban (lentebb mindenki névvel is szerepel). Jól látszik, ahogy adja tovább egyik a másiknak: <strong>Zolij → Márki-Zay Feri → én → Pomucz Tomi és Wendl Lili.</strong> Mindig akad, aki átveszi, mire az előző csúcsa elhalványul.</p>
 
@@ -1372,8 +1390,24 @@ eredeti tervből. Továbbá a <code>b2b-app</code>-ot ami egy extra frontend vol
   <a href="#sec-about" data-target="sec-about">Rólam</a>
   <a href="#sec-intro" data-target="sec-intro">Intro</a>
   <a href="#sec-story" data-target="sec-story">Sztori és szakma</a>
+  <a class="toc-h3" href="#h3-ugorjunk-vissza-az-idovonal" data-target="h3-ugorjunk-vissza-az-idovonal">Ugorjunk vissza — az idővonal</a>
+  <a class="toc-h3" href="#h3-2013-amit-orokoltem" data-target="h3-2013-amit-orokoltem">2013 — amit örököltem</a>
+  <a class="toc-h3" href="#h3-2015-2019-az-ujrairasi-kiserletek" data-target="h3-2015-2019-az-ujrairasi-kiserletek">2015–2019 — az újraírási kísérletek</a>
+  <a class="toc-h3" href="#h3-es-akkor-kanyarodjunk-vissza" data-target="h3-es-akkor-kanyarodjunk-vissza">És akkor kanyarodjunk vissza</a>
+  <a class="toc-h3" href="#h3-2020-2021-a-projekt-lassu-halala" data-target="h3-2020-2021-a-projekt-lassu-halala">2020–2021 — A projekt lassú halála</a>
+  <a class="toc-h3" href="#h3-2021-akkor-vege" data-target="h3-2021-akkor-vege">2021 — Akkor vége?</a>
+  <a class="toc-h3" href="#h3-2022-junius-25-adminsch-code" data-target="h3-2022-junius-25-adminsch-code">2022. június 25. — AdminSCH Code</a>
+  <a class="toc-h3" href="#h3-2022-augusztus-1-az-atallas" data-target="h3-2022-augusztus-1-az-atallas">2022. Augusztus 1 - Az átállás</a>
+  <a class="toc-h3" href="#h3-2022-masodik-feletol-2023-vegeig" data-target="h3-2022-masodik-feletol-2023-vegeig">2022 második felétől 2023 végéig</a>
+  <a class="toc-h3" href="#h3-2024-2026-a-stafetabot" data-target="h3-2024-2026-a-stafetabot">2024–2026 — a stafétabot</a>
   <a href="#sec-architecture" data-target="sec-architecture">Architektúra</a>
+  <a class="toc-h3" href="#h3-architektura-harom-allapotban" data-target="h3-architektura-harom-allapotban">Architektúra három állapotban</a>
+  <a class="toc-h3" href="#h3-mi-epult-mikor-diohejban" data-target="h3-mi-epult-mikor-diohejban">Mi épült mikor — dióhéjban</a>
+  <a class="toc-h3" href="#h3-amit-archivaltunk" data-target="h3-amit-archivaltunk">Amit archiváltunk</a>
   <a href="#sec-dev" data-target="sec-dev">Fejlesztések és statisztikák</a>
+  <a class="toc-h3" href="#h3-kezdemenyezesek-idorendben" data-target="h3-kezdemenyezesek-idorendben">Kezdeményezések időrendben</a>
+  <a class="toc-h3" href="#h3-release-tortenet" data-target="h3-release-tortenet">Release-történet</a>
+  <a class="toc-h3" href="#h3-kie-volt-a-stafeta" data-target="h3-kie-volt-a-stafeta">Kié volt a staféta</a>
   <a href="#sec-thanks" data-target="sec-thanks">Köszönet</a>
 </nav>
 </div>

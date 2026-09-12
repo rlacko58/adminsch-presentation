@@ -207,12 +207,18 @@ function splitBlocks(text) {
 const raw = fs.readFileSync(path.join(DIR, 'tortenet.md'), 'utf8');
 const blocks = splitBlocks(raw);
 
+function slugify(s) {
+  return 'h3-' + s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
 let out = [];
 let skipNext = false;
 let nextPClass = null;
 let expectCommitLog = false;
 let sectionOpen = false;
 let dek = null;
+const TOC = []; // flat list of {level, id, text}, used to generate #toc-rail / #tocMenu
 
 for (let bi = 0; bi < blocks.length; bi++) {
   const block = blocks[bi];
@@ -264,13 +270,16 @@ for (let bi = 0; bi < blocks.length; bi++) {
     out.push(`<section data-rail-mode="${sec.mode}" id="${sec.id}">`);
     out.push(`<h2>${h2[1]}</h2>`);
     sectionOpen = true;
+    TOC.push({ level: 2, id: sec.id, text: h2[1] });
     continue;
   }
 
   const h3 = trimmed.match(/^### (.+)$/);
   if (h3) {
     const year = YEAR_MAP[h3[1]];
-    out.push(year ? `<h3 data-year="${year}">${h3[1]}</h3>` : `<h3>${h3[1]}</h3>`);
+    const id = slugify(h3[1]);
+    out.push(year ? `<h3 id="${id}" data-year="${year}">${h3[1]}</h3>` : `<h3 id="${id}">${h3[1]}</h3>`);
+    TOC.push({ level: 3, id, text: h3[1] });
     continue;
   }
 
@@ -348,15 +357,29 @@ const articleInner = `  <div class="kicker">KSZK50 Prezentáció — teljes tör
 
 ${out.join('\n\n')}`;
 
-// splice into the existing index.html shell (everything outside <article>...</article> is untouched)
-const shellPath = path.join(DIR, 'index.html');
-const shell = fs.readFileSync(shellPath, 'utf8');
-const startTag = '<article>';
-const endTag = '</article>';
-const start = shell.indexOf(startTag);
-const end = shell.indexOf(endTag);
-if (start === -1 || end === -1) throw new Error('could not find <article>...</article> in index.html');
+// toc-rail (always-visible, wide screens) and tocMenu (topbar dropdown, narrower
+// screens) are two views of the same TOC list — h3s rendered indented under their
+// parent h2, same href/data-target scheme so the existing scrollspy (which just
+// queries all `a[data-target]`) picks up subsections with no JS changes needed.
+const tocLinksHtml = TOC.map(t =>
+  t.level === 3
+    ? `  <a class="toc-h3" href="#${t.id}" data-target="${t.id}">${t.text}</a>`
+    : `  <a href="#${t.id}" data-target="${t.id}">${t.text}</a>`
+).join('\n');
 
-const newHtml = shell.slice(0, start + startTag.length) + '\n' + articleInner + '\n' + shell.slice(end);
-fs.writeFileSync(shellPath, newHtml);
-console.log('wrote index.html (article regenerated from tortenet.md)');
+function spliceBetween(html, startTag, endTag, inner) {
+  const start = html.indexOf(startTag);
+  const end = html.indexOf(endTag, start);
+  if (start === -1 || end === -1) throw new Error(`could not find ${startTag} ... ${endTag} in index.html`);
+  return html.slice(0, start + startTag.length) + '\n' + inner + '\n' + html.slice(end);
+}
+
+// splice into the existing index.html shell (everything outside these marked
+// regions is untouched)
+const shellPath = path.join(DIR, 'index.html');
+let shell = fs.readFileSync(shellPath, 'utf8');
+shell = spliceBetween(shell, '<article>', '</article>', articleInner);
+shell = spliceBetween(shell, '<nav id="toc-rail" aria-label="Ugrás szakaszra">', '</nav>', tocLinksHtml);
+shell = spliceBetween(shell, '<div id="tocMenu" class="toc-menu" role="menu">', '</div>', tocLinksHtml.replace(/<a /g, '<a role="menuitem" '));
+fs.writeFileSync(shellPath, shell);
+console.log('wrote index.html (article + toc regenerated from tortenet.md)');
