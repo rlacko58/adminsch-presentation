@@ -19,6 +19,7 @@
     --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
     --other: #c3c2b7;
     --accent: #2a78d6;
+    --scroll-shadow: rgba(11,11,11,0.16);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -35,6 +36,7 @@
       --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
       --other: #52514e;
       --accent: #3987e5;
+      --scroll-shadow: rgba(0,0,0,0.55);
     }
   }
   :root[data-theme="dark"]{
@@ -51,6 +53,7 @@
     --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
     --other: #52514e;
     --accent: #3987e5;
+    --scroll-shadow: rgba(0,0,0,0.55);
   }
 
   * { box-sizing: border-box; }
@@ -248,8 +251,30 @@
   .stat-tile.dead-tile{ border-top-color:var(--text-muted); }
 
   /* ---- kódsorok / loc table ---- */
-  .table-scroll{ overflow-x:auto; }
+  /* horizontal scroll shadows: content fades under a soft edge shadow on
+     whichever side still has more to scroll to, and the shadow disappears
+     once you reach that edge. Two gradients scroll WITH the content
+     (background-attachment:local) to mask it at the edges, two more stay
+     fixed to the viewport (attachment:scroll) to paint the actual shadow —
+     the classic no-JS scroll-shadow trick. Without this the table just
+     looked cut off mid-number on phones with no hint it could scroll. */
+  .table-scroll{
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    background:
+      linear-gradient(to right, var(--page) 50%, rgba(0,0,0,0)),
+      linear-gradient(to left, var(--page) 50%, rgba(0,0,0,0)) 100% 0,
+      linear-gradient(to right, var(--scroll-shadow), rgba(0,0,0,0)),
+      linear-gradient(to left, var(--scroll-shadow), rgba(0,0,0,0)) 100% 0;
+    background-repeat: no-repeat;
+    background-color: var(--page);
+    background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
   .loc-table{ min-width:820px; }
+  @media (max-width:640px){
+    .loc-table{ min-width:640px; font-size:13.5px; }
+    .loc-table th, .loc-table td{ padding:7px 8px; }
+  }
   .loc-table th{ cursor:pointer; user-select:none; }
   .loc-table th:hover{ color:var(--text-primary); }
   .loc-table th .arrow{ opacity:0; font-size:10px; margin-left:3px; }
