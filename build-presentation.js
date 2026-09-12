@@ -269,9 +269,15 @@ const page = `<!doctype html>
      repaint of the mask / rest of the page on every frame. duration is set
      inline per-slide (proportional to name count) so pace stays constant
      how ever many names there are. */
+  /* the loop must shift by EXACTLY one copy's rendered height + the 8px row
+     gap, not an approximate -33.3333%: with a fixed % of the 3-copy track
+     the 8px gaps don't scale the same way, so % undershoots the real seam by
+     a constant ~2.7px every loop. Driving the transform off the same
+     --name-wall-h var used for sizing keeps the seam exact regardless of
+     content height. */
   .name-scroll-track{ display:flex; flex-direction:column; gap:8px; will-change:transform; animation-name:name-scroll; animation-timing-function:linear; animation-iteration-count:infinite; }
   .name-wall{ display:flex; flex-wrap:wrap; gap:8px 10px; justify-content:center; }
-  @keyframes name-scroll{ from{ transform:translateY(0); } to{ transform:translateY(-33.3333%); } }
+  @keyframes name-scroll{ from{ transform:translateY(0); } to{ transform:translateY(calc(-1 * (var(--name-wall-h, 0px) + 8px))); } }
   .name-chip{
     font-size:clamp(11px,1.05vw,14px); padding:5px 13px; border-radius:999px;
     border:1px solid currentColor; opacity:.8; white-space:nowrap;
@@ -406,11 +412,25 @@ ${slidesHtml}
     sizeNameScroll();
   }
 
+  // Several independent triggers, all cheap and all calling the same
+  // synchronous measurement, so no single missed event (a fullscreen
+  // transition with no resize event, a webfont swapping in late, a resize
+  // observer callback getting throttled in a background tab) can leave
+  // --name-wall-h stale and reopen the gap.
+  const nameWall = document.querySelector('.name-wall');
+  const nameScroll = document.querySelector('.name-scroll');
   function sizeNameScroll(){
-    const wall = document.querySelector('.slide-closing.active .name-wall');
-    const scroll = document.querySelector('.slide-closing.active .name-scroll');
-    if(!wall || !scroll) return;
-    scroll.style.setProperty('--name-wall-h', wall.getBoundingClientRect().height + 'px');
+    if(!nameWall || !nameScroll) return;
+    const h = nameWall.getBoundingClientRect().height;
+    if(h > 0) nameScroll.style.setProperty('--name-wall-h', h + 'px');
+  }
+  if(nameWall && nameScroll){
+    new ResizeObserver(sizeNameScroll).observe(nameWall);
+    document.fonts && document.fonts.ready.then(sizeNameScroll);
+    document.addEventListener('fullscreenchange', ()=>{
+      sizeNameScroll();
+      requestAnimationFrame(()=> requestAnimationFrame(sizeNameScroll));
+    });
   }
 
   function next(){ if(i < slides.length-1){ i++; render(); } }
@@ -618,7 +638,6 @@ ${slidesHtml}
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(()=>{ buildRail(); updateRailMarker(slides[i]); sizeNameScroll(); }, 150);
   });
-  document.addEventListener('fullscreenchange', ()=> setTimeout(sizeNameScroll, 50));
 })();
 </script>
 </body>
